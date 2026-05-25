@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8 } from 'lucide-react';
+import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8, Camera } from 'lucide-react';
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -13,12 +13,26 @@ export default function App() {
 }
 
 function GateView({ onEnter }: { onEnter: () => void }) {
-  const [time, setTime] = useState("23:59:59");
+  const [countdown, setCountdown] = useState("00:00:00");
 
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      setTime(now.toLocaleTimeString('ja-JP', { hour12: false }));
+      // 次の24:00までのカウントダウンを計算
+      const tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0);
+      const diff = tomorrow.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setCountdown("00:00:00");
+      } else {
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        setCountdown(
+          `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        );
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -35,7 +49,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
           <p className="text-gray-400 text-sm">夜が来るまで、あと少し。</p>
         </div>
         <div className="text-6xl font-light tracking-widest font-numbers text-white/90">
-          {time}
+          {countdown}
         </div>
         <button
           onClick={onEnter}
@@ -144,26 +158,90 @@ function HomeView() {
 }
 
 function FriendChatView() {
+  const [chatTab, setChatTab] = useState<'friends' | 'open'>('friends');
+  const [openChatMessages, setOpenChatMessages] = useState([
+    { id: 1, user: "unknown_owl", text: "誰か起きてる？", time: "01:20" },
+    { id: 2, user: "sleepy", text: "起きてるよー", time: "01:21" },
+  ]);
+  const [newChat, setNewChat] = useState("");
+
   const friends = [
     { id: 1, name: "yuki", status: "Online" },
     { id: 2, name: "kenta", status: "Online" },
     { id: 3, name: "anonymous_owl", status: "Offline" },
   ];
 
+  const handleSendOpenChat = () => {
+    if (!newChat.trim()) return;
+    setOpenChatMessages([...openChatMessages, { id: Date.now(), user: "me", text: newChat, time: "Now" }]);
+    setNewChat("");
+  };
+
   return (
-    <div className="flex flex-col gap-3">
-      {friends.map(friend => (
-        <button key={friend.id} className="glass-button p-4 flex items-center gap-4 text-left w-full">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full bg-white/10" />
-            <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-night-navy ${friend.status === 'Online' ? 'bg-green-400' : 'bg-gray-500'}`} />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-white/90">{friend.name}</h3>
-            <p className="text-xs text-gray-400">{friend.status}</p>
-          </div>
+    <div className="flex flex-col gap-4 h-full pb-20">
+      <div className="flex gap-2 p-1 bg-black/20 rounded-full">
+        <button
+          onClick={() => setChatTab('friends')}
+          className={`flex-1 py-2 text-sm font-semibold rounded-full transition-colors ${chatTab === 'friends' ? 'bg-indigo-500/30 text-white' : 'text-gray-400'}`}
+        >
+          フレンド
         </button>
-      ))}
+        <button
+          onClick={() => setChatTab('open')}
+          className={`flex-1 py-2 text-sm font-semibold rounded-full transition-colors ${chatTab === 'open' ? 'bg-indigo-500/30 text-white' : 'text-gray-400'}`}
+        >
+          オープン
+        </button>
+      </div>
+
+      {chatTab === 'friends' && (
+        <div className="flex flex-col gap-3 mt-2">
+          {friends.map(friend => (
+            <button key={friend.id} className="glass-button p-4 flex items-center gap-4 text-left w-full">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-full bg-white/10" />
+                <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-night-navy ${friend.status === 'Online' ? 'bg-green-400' : 'bg-gray-500'}`} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-white/90">{friend.name}</h3>
+                <p className="text-xs text-gray-400">{friend.status}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {chatTab === 'open' && (
+        <div className="flex flex-col h-[60vh] glass-panel p-4">
+          <div className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-hide">
+            {openChatMessages.map(msg => (
+              <div key={msg.id} className="flex flex-col">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-xs text-indigo-300">{msg.user}</span>
+                  <span className="text-xs font-numbers text-gray-500">{msg.time}</span>
+                </div>
+                <p className="text-sm text-white/90 bg-white/5 p-3 rounded-2xl rounded-tl-none mt-1 inline-block w-fit max-w-[80%]">{msg.text}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newChat}
+              onChange={e => setNewChat(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSendOpenChat()}
+              placeholder="誰でも見れるオープンチャット..."
+              className="flex-1 glass-panel rounded-full px-4 py-2 text-sm outline-none bg-black/20"
+            />
+            <button
+              onClick={handleSendOpenChat}
+              className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-indigo-300 hover:bg-indigo-500/20"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -506,6 +584,14 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
 function MyPageView() {
   const [isPremium, setIsPremium] = useState(false);
   const [showPast, setShowPast] = useState(false);
+  const [userIcon, setUserIcon] = useState<string | null>(null);
+
+  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const url = URL.createObjectURL(e.target.files[0]);
+      setUserIcon(url);
+    }
+  };
 
   if (showPast) {
     return (
@@ -536,8 +622,18 @@ function MyPageView() {
   return (
     <div className="flex flex-col gap-8 items-center pt-8">
       <div className="text-center flex flex-col items-center gap-4">
-        <div className="w-24 h-24 rounded-full glass-panel flex items-center justify-center text-gray-500">
-           <User className="w-10 h-10" />
+        <div className="relative">
+          <div className="w-24 h-24 rounded-full glass-panel flex items-center justify-center text-gray-500 overflow-hidden">
+             {userIcon ? (
+               <img src={userIcon} alt="User Icon" className="w-full h-full object-cover" />
+             ) : (
+               <User className="w-10 h-10" />
+             )}
+          </div>
+          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform">
+             <Camera className="w-4 h-4" />
+             <input type="file" accept="image/*" className="hidden" onChange={handleIconChange} />
+          </label>
         </div>
         <div>
           <h2 className="font-bold text-xl">My Username</h2>
