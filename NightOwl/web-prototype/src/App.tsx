@@ -34,7 +34,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
           <h1 className="text-3xl font-bold tracking-widest mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">NightOwl</h1>
           <p className="text-gray-400 text-sm">夜が来るまで、あと少し。</p>
         </div>
-        <div className="text-5xl font-light tracking-widest font-mono text-white/90">
+        <div className="text-6xl font-light tracking-widest font-numbers text-white/90">
           {time}
         </div>
         <button
@@ -119,7 +119,7 @@ function HomeView() {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-white/10" />
             <span className="font-semibold text-sm text-white/90">{post.user}</span>
-            <span className="text-xs text-gray-500 ml-auto">{post.time}</span>
+            <span className="text-sm font-numbers text-gray-500 ml-auto">{post.time}</span>
           </div>
           <p className="pl-11 text-white/80 text-sm leading-relaxed">{post.content}</p>
         </div>
@@ -389,7 +389,7 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex items-center gap-1 bg-black/20 px-3 py-1.5 rounded-full text-xs text-indigo-200 border border-indigo-500/20 backdrop-blur-sm">
             <Clock8 className="w-3 h-3" />
-            <span>残り {Math.floor(timeLeft / 60)}時間{timeLeft % 60}分</span>
+            <span>残り <span className="font-numbers text-sm">{Math.floor(timeLeft / 60)}</span>時間<span className="font-numbers text-sm">{timeLeft % 60}</span>分</span>
           </div>
         </div>
 
@@ -428,7 +428,7 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
 
         {/* Listeners Area */}
         <div className="w-full">
-          <h3 className="text-xs font-semibold text-gray-400 mb-3 px-2">Listeners (15)</h3>
+          <h3 className="text-xs font-semibold text-gray-400 mb-3 px-2">Listeners (<span className="font-numbers text-sm">15</span>)</h3>
           <div className="flex flex-wrap gap-4 justify-center">
             {[
               { id: 1, name: "kenta", canInvite: true },
@@ -467,7 +467,7 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
             <div key={msg.id} className="flex flex-col">
               <div className="flex items-baseline gap-2">
                 <span className="font-semibold text-xs text-white/80">{msg.user}</span>
-                <span className="text-[10px] text-gray-500">{msg.time}</span>
+                <span className="text-xs font-numbers text-gray-500">{msg.time}</span>
               </div>
               <p className="text-sm text-white/90">{msg.text}</p>
             </div>

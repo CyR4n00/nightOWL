@@ -65,6 +65,11 @@
       0 0 20px rgba(99, 102, 241, 0.3),
       inset 0 0 10px rgba(99, 102, 241, 0.2);
   }
+
+  /* 数字用のエモいフォント（セリフ体） */
+  .font-numbers {
+    font-family: 'Cormorant Garamond', serif;
+  }
 }
 
 body {
