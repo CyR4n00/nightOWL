@@ -7,37 +7,36 @@
 
 @layer utilities {
   .glass-panel {
-    /* 限界まで透明度を上げ、ぼかしを強くする */
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    /* すりガラスではなく、クリアな透明ガラスを表現 */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+    backdrop-filter: blur(8px); /* ぼかしを弱くして透け感を出す */
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 1.25rem;
 
-    /* ガラスのエッジ（上と左に光が当たっている表現） */
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    /* クリアガラスのエッジ */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
 
-    /* 内側の影で厚みを、外側の影で浮遊感を出す */
+    /* 落ち影を軽くして透明感を際立たせる */
     box-shadow:
-      inset 0 0 20px rgba(255, 255, 255, 0.05),
-      0 10px 40px -10px rgba(0, 0, 0, 0.7);
+      inset 0 0 10px rgba(255, 255, 255, 0.02),
+      0 8px 32px -8px rgba(0, 0, 0, 0.5);
   }
 
   .glass-button {
-    /* ボタンはさらに透明に、反射を強く */
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    /* ボタンもクリアガラスに */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(4px); /* ぼかしをさらに弱く */
+    -webkit-backdrop-filter: blur(4px);
     border-radius: 1rem;
 
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
     border-left: 1px solid rgba(255, 255, 255, 0.2);
 
     box-shadow:
-      inset 0 1px 1px rgba(255, 255, 255, 0.1),
-      0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      0 4px 16px 0 rgba(0, 0, 0, 0.2);
 
     transition-property: all;
     transition-duration: 300ms;
@@ -69,15 +68,16 @@
 }
 
 body {
-  /* 薄水色（Cyan系）から緑（Teal/Mint系）にかけてのグラデーション */
-  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+  /* 紺色ベースで少し深みのある夜空のようなグラデーション */
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
   color: white;
+  font-family: 'Zen Kurenaido', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-attachment: fixed; /* スクロールしてもグラデーションを固定 */
+  background-attachment: fixed;
 }
 ::selection {
   background-color: rgb(99 102 241 / 0.3);

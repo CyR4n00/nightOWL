@@ -61,8 +61,8 @@ function MainApp() {
       </div>
 
       <div className="flex-1 relative z-10 w-full max-w-lg mx-auto">
-        <header className="glass-panel rounded-none rounded-b-3xl p-4 sticky top-0 z-20 flex justify-center border-t-0 border-x-0">
-          <h1 className="font-bold text-indigo-300 tracking-widest">NightOwl</h1>
+        <header className="p-4 sticky top-0 z-20 flex justify-center bg-transparent">
+          <h1 className="font-bold text-indigo-300 tracking-widest text-xl drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]">NightOwl</h1>
         </header>
 
         <main className="p-4 space-y-4 h-full">
@@ -379,30 +379,31 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-night-navy/95 backdrop-blur-xl flex flex-col">
-      <header className="p-4 flex justify-between items-center glass-panel rounded-none border-t-0 border-x-0">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-3xl flex flex-col">
+      {/* 枠なしの透過ヘッダー */}
+      <header className="p-4 flex justify-between items-center bg-transparent">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-sm font-semibold text-red-400">Live</span>
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
+            <span className="text-sm font-semibold text-red-400 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">Live</span>
           </div>
-          <div className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-full text-xs text-indigo-300 border border-indigo-500/30">
+          <div className="flex items-center gap-1 bg-black/20 px-3 py-1.5 rounded-full text-xs text-indigo-200 border border-indigo-500/20 backdrop-blur-sm">
             <Clock8 className="w-3 h-3" />
             <span>残り {Math.floor(timeLeft / 60)}時間{timeLeft % 60}分</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <button onClick={() => setTimeLeft(timeLeft + 30)} className="text-xs text-indigo-400 border border-indigo-500/50 px-2 py-1 rounded-full hover:bg-indigo-500/20">
+          <button onClick={() => setTimeLeft(timeLeft + 30)} className="text-xs font-semibold text-indigo-300 border border-indigo-500/40 bg-indigo-500/10 px-3 py-1.5 rounded-full hover:bg-indigo-500/30 transition-colors backdrop-blur-sm">
             +30分延長
           </button>
-          <button onClick={handleShare} className="p-2 glass-button rounded-full text-indigo-300 relative group">
+          <button onClick={handleShare} className="p-2 rounded-full bg-black/20 border border-white/10 text-indigo-300 relative group hover:bg-white/10 transition-colors backdrop-blur-sm">
             <LinkIcon className="w-5 h-5" />
-            <div className="absolute -bottom-8 right-0 text-[10px] whitespace-nowrap bg-indigo-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="absolute -bottom-8 right-0 text-[10px] whitespace-nowrap bg-indigo-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
               リンクをコピー
             </div>
           </button>
-          <button onClick={onClose} className="p-2 glass-button rounded-full text-gray-400">
+          <button onClick={onClose} className="p-2 rounded-full bg-black/20 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors backdrop-blur-sm">
             <X className="w-5 h-5" />
           </button>
         </div>
