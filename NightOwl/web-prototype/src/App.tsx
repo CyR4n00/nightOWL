@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, MessageSquare, User, Lock, Send, Phone, MicOff, Volume2, X } from 'lucide-react';
+import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones } from 'lucide-react';
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -25,7 +25,6 @@ function GateView({ onEnter }: { onEnter: () => void }) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
-      {/* Decorative blurred circles for glassmorphism background effect */}
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px]" />
       <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-600/20 rounded-full blur-[100px]" />
 
@@ -53,10 +52,12 @@ function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
 
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden pb-20">
-      {/* Background glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-full pointer-events-none z-0">
-         <div className="absolute top-0 left-0 w-full h-1/2 bg-indigo-900/10 blur-[120px]" />
+    <div className="flex flex-col min-h-screen relative overflow-hidden pb-24">
+      {/* Background Orbs for Glassmorphism transparency effect */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-full pointer-events-none z-0 overflow-hidden">
+         <div className="absolute top-10 -left-10 w-72 h-72 bg-indigo-600/30 rounded-full blur-[100px]" />
+         <div className="absolute top-1/2 -right-10 w-64 h-64 bg-purple-600/20 rounded-full blur-[80px]" />
+         <div className="absolute bottom-10 left-1/4 w-80 h-80 bg-teal-600/10 rounded-full blur-[120px]" />
       </div>
 
       <div className="flex-1 relative z-10 w-full max-w-lg mx-auto">
@@ -64,9 +65,10 @@ function MainApp() {
           <h1 className="font-bold text-indigo-300 tracking-widest">NightOwl</h1>
         </header>
 
-        <main className="p-4 space-y-4">
+        <main className="p-4 space-y-4 h-full">
           {activeTab === 'home' && <HomeView />}
           {activeTab === 'chat' && <FriendChatView />}
+          {activeTab === 'voice' && <VoiceRoomMainView />}
           {activeTab === 'profile' && <MyPageView />}
         </main>
       </div>
@@ -75,6 +77,7 @@ function MainApp() {
         <div className="glass-panel w-full max-w-lg mx-auto flex justify-around p-4 rounded-none rounded-t-3xl border-b-0 border-x-0">
           <TabButton icon={<Home />} label="ホーム" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
           <TabButton icon={<MessageSquare />} label="チャット" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
+          <TabButton icon={<Headphones />} label="音声ルーム" isActive={activeTab === 'voice'} onClick={() => setActiveTab('voice')} />
           <TabButton icon={<User />} label="マイページ" isActive={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
         </div>
       </nav>
@@ -141,12 +144,6 @@ function HomeView() {
 }
 
 function FriendChatView() {
-  const [activeRoom, setActiveRoom] = useState<boolean>(false);
-
-  if (activeRoom) {
-    return <VoiceRoomView onClose={() => setActiveRoom(false)} />;
-  }
-
   const friends = [
     { id: 1, name: "yuki", status: "Online" },
     { id: 2, name: "kenta", status: "Online" },
@@ -167,19 +164,140 @@ function FriendChatView() {
           </div>
         </button>
       ))}
+    </div>
+  );
+}
 
-      <button
-        onClick={() => setActiveRoom(true)}
-        className="mt-6 glass-panel p-6 flex flex-col items-center gap-3 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition-colors cursor-pointer"
-      >
-        <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300">
-          <Phone className="w-6 h-6" />
+function VoiceRoomMainView() {
+  const [activeRoom, setActiveRoom] = useState<boolean>(false);
+  const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
+
+  if (activeRoom) {
+    return <VoiceRoomView onClose={() => setActiveRoom(false)} />;
+  }
+
+  if (showRoomSettings) {
+    return <VoiceRoomSettings onClose={() => setShowRoomSettings(false)} onStart={() => { setShowRoomSettings(false); setActiveRoom(true); }} />;
+  }
+
+  return (
+    <div className="flex flex-col gap-6 pt-4 h-full">
+      <div className="flex items-center justify-between px-2">
+        <h2 className="font-bold text-lg">現在開かれているルーム</h2>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {/* Mock active room */}
+        <button
+          onClick={() => setActiveRoom(true)}
+          className="glass-panel p-5 flex flex-col gap-4 text-left hover:bg-white/5 transition-colors"
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-xs font-semibold text-green-400">開催中</span>
+            </div>
+            <div className="flex -space-x-2">
+               {[1,2,3].map(i => (
+                 <div key={i} className="w-6 h-6 rounded-full bg-white/20 border-2 border-night-navy" />
+               ))}
+               <div className="w-6 h-6 rounded-full bg-white/10 border-2 border-night-navy flex items-center justify-center text-[10px]">+12</div>
+            </div>
+          </div>
+          <div>
+            <h3 className="font-bold text-white/90">深夜の読書会 📚</h3>
+            <p className="text-xs text-gray-400 mt-1">Host: yuki</p>
+          </div>
+        </button>
+
+        {/* Empty state or more rooms */}
+        <div className="text-center text-sm text-gray-500 py-8">
+          他の公開ルームはまだありません。
         </div>
-        <div className="text-center">
-          <h3 className="font-semibold text-indigo-300">音声ルームを作成（Space風）</h3>
-          <p className="text-xs text-indigo-300/60 mt-1">誰でも参加できるラジオを始める</p>
+      </div>
+
+      <div className="absolute bottom-6 right-6 z-10">
+        <button
+          onClick={() => setShowRoomSettings(true)}
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.5)] flex items-center justify-center text-white hover:scale-105 transition-transform"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart: () => void }) {
+  const [privacy, setPrivacy] = useState<'open' | 'private' | 'link'>('open');
+
+  return (
+    <div className="flex flex-col gap-6 pt-4 h-full">
+      <div className="flex items-center justify-between px-2">
+        <button onClick={onClose} className="text-sm text-indigo-400">キャンセル</button>
+        <h2 className="font-bold text-lg">ルーム作成</h2>
+        <div className="w-14" /> {/* Spacer for centering */}
+      </div>
+
+      <div className="glass-panel p-6 flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+           <label className="text-xs text-gray-400 font-semibold">ルームのタイトル（任意）</label>
+           <input type="text" placeholder="例：眠れない人おいで" className="bg-transparent border-b border-white/20 pb-2 outline-none text-white/90 placeholder:text-gray-600" />
         </div>
-      </button>
+
+        <div className="flex items-center gap-3 border-b border-white/10 pb-4 mt-2">
+          <Settings2 className="text-indigo-400 w-5 h-5" />
+          <h3 className="font-semibold text-white/90">公開範囲</h3>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => setPrivacy('open')}
+            className={`glass-button p-4 flex items-center gap-4 text-left transition-all ${privacy === 'open' ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : ''}`}
+          >
+            <div className={`p-2 rounded-full ${privacy === 'open' ? 'bg-indigo-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-semibold text-white/90">オープン（誰でも）</div>
+              <div className="text-xs text-gray-400 mt-1">一覧に表示され、誰でも参加できます</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setPrivacy('private')}
+            className={`glass-button p-4 flex items-center gap-4 text-left transition-all ${privacy === 'private' ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : ''}`}
+          >
+            <div className={`p-2 rounded-full ${privacy === 'private' ? 'bg-indigo-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-semibold text-white/90">プライベート（フレンドのみ）</div>
+              <div className="text-xs text-gray-400 mt-1">フレンド一覧にいる人だけが参加できます</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setPrivacy('link')}
+            className={`glass-button p-4 flex items-center gap-4 text-left transition-all ${privacy === 'link' ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : ''}`}
+          >
+            <div className={`p-2 rounded-full ${privacy === 'link' ? 'bg-indigo-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+              <LinkIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-semibold text-white/90">リンク共有（一部の人）</div>
+              <div className="text-xs text-gray-400 mt-1">URLを知っている人だけが参加できます</div>
+            </div>
+          </button>
+        </div>
+
+        <button
+          onClick={onStart}
+          className="mt-4 glass-button w-full py-4 font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 border-none shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+        >
+          ルームを開始する
+        </button>
+      </div>
     </div>
   );
 }
@@ -210,7 +328,7 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
 
         {/* Listeners Area */}
         <div className="w-full">
-          <h3 className="text-xs font-semibold text-gray-400 mb-3 px-2">Listeners (12)</h3>
+          <h3 className="text-xs font-semibold text-gray-400 mb-3 px-2">Listeners (15)</h3>
           <div className="flex flex-wrap gap-3">
             {[1,2,3,4,5].map(i => (
                <div key={i} className="w-10 h-10 rounded-full bg-white/10" />
