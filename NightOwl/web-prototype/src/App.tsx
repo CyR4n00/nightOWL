@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones } from 'lucide-react';
+import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8 } from 'lucide-react';
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -229,7 +229,9 @@ function VoiceRoomMainView() {
 }
 
 function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart: () => void }) {
-  const [privacy, setPrivacy] = useState<'open' | 'private' | 'link'>('open');
+  const [privacy, setPrivacy] = useState<'open' | 'private'>('open');
+  const [speakerRule, setSpeakerRule] = useState<'request' | 'invite_only'>('request');
+  const [autoCloseTimer, setAutoCloseTimer] = useState<'none' | '1h' | '2h'>('none');
 
   return (
     <div className="flex flex-col gap-6 pt-4 h-full">
@@ -253,9 +255,9 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
         <div className="flex flex-col gap-3">
           <button
             onClick={() => setPrivacy('open')}
-            className={`glass-button p-4 flex items-center gap-4 text-left transition-all ${privacy === 'open' ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : ''}`}
+            className={`glass-button p-4 flex items-center gap-4 text-left ${privacy === 'open' ? 'active' : ''}`}
           >
-            <div className={`p-2 rounded-full ${privacy === 'open' ? 'bg-indigo-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+            <div className={`p-2 rounded-full ${privacy === 'open' ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/10 text-gray-400'}`}>
               <Globe className="w-5 h-5" />
             </div>
             <div>
@@ -266,9 +268,9 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
 
           <button
             onClick={() => setPrivacy('private')}
-            className={`glass-button p-4 flex items-center gap-4 text-left transition-all ${privacy === 'private' ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : ''}`}
+            className={`glass-button p-4 flex items-center gap-4 text-left ${privacy === 'private' ? 'active' : ''}`}
           >
-            <div className={`p-2 rounded-full ${privacy === 'private' ? 'bg-indigo-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+            <div className={`p-2 rounded-full ${privacy === 'private' ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/10 text-gray-400'}`}>
               <Users className="w-5 h-5" />
             </div>
             <div>
@@ -276,19 +278,72 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
               <div className="text-xs text-gray-400 mt-1">フレンド一覧にいる人だけが参加できます</div>
             </div>
           </button>
+        </div>
 
-          <button
-            onClick={() => setPrivacy('link')}
-            className={`glass-button p-4 flex items-center gap-4 text-left transition-all ${privacy === 'link' ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : ''}`}
-          >
-            <div className={`p-2 rounded-full ${privacy === 'link' ? 'bg-indigo-500 text-white' : 'bg-white/10 text-gray-400'}`}>
-              <LinkIcon className="w-5 h-5" />
+        {privacy === 'open' && (
+          <div className="mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-3">
+              <Mic className="text-indigo-400 w-5 h-5" />
+              <h3 className="font-semibold text-white/90">スピーカー権限</h3>
             </div>
-            <div>
-              <div className="font-semibold text-white/90">リンク共有（一部の人）</div>
-              <div className="text-xs text-gray-400 mt-1">URLを知っている人だけが参加できます</div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => setSpeakerRule('request')}
+                className={`glass-button p-4 flex items-center gap-4 text-left ${speakerRule === 'request' ? 'active' : ''}`}
+              >
+                <div className={`p-2 rounded-full ${speakerRule === 'request' ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/10 text-gray-400'}`}>
+                  <Hand className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-white/90">リスナーの挙手を許可</div>
+                  <div className="text-xs text-gray-400 mt-1">誰でも話すリクエストを送れます</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setSpeakerRule('invite_only')}
+                className={`glass-button p-4 flex items-center gap-4 text-left ${speakerRule === 'invite_only' ? 'active' : ''}`}
+              >
+                <div className={`p-2 rounded-full ${speakerRule === 'invite_only' ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/10 text-gray-400'}`}>
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-white/90">招待のみ</div>
+                  <div className="text-xs text-gray-400 mt-1">オーナーが選択した人のみが話せます</div>
+                </div>
+              </button>
             </div>
-          </button>
+          </div>
+        )}
+
+        <div className="mt-2">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-3">
+            <Clock className="text-indigo-400 w-5 h-5" />
+            <h3 className="font-semibold text-white/90">自動終了タイマー</h3>
+            <span className="text-[10px] text-gray-400 ml-auto bg-white/5 px-2 py-1 rounded">朝6時までは任意延長可</span>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setAutoCloseTimer('none')}
+              className={`flex-1 glass-button py-3 text-sm text-center ${autoCloseTimer === 'none' ? 'active' : ''}`}
+            >
+              設定しない
+            </button>
+            <button
+              onClick={() => setAutoCloseTimer('1h')}
+              className={`flex-1 glass-button py-3 text-sm text-center ${autoCloseTimer === '1h' ? 'active' : ''}`}
+            >
+              1時間
+            </button>
+            <button
+              onClick={() => setAutoCloseTimer('2h')}
+              className={`flex-1 glass-button py-3 text-sm text-center ${autoCloseTimer === '2h' ? 'active' : ''}`}
+            >
+              2時間
+            </button>
+          </div>
         </div>
 
         <button
@@ -303,21 +358,65 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
 }
 
 function VoiceRoomView({ onClose }: { onClose: () => void }) {
+  const [showInviteToast, setShowInviteToast] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(120); // 120 minutes = 2 hours mock
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, user: "kenta", text: "こんばんは！", time: "01:05" },
+    { id: 2, user: "sleepy", text: "BGMいい感じですね", time: "01:08" },
+  ]);
+  const [newChat, setNewChat] = useState("");
+
+  const handleShare = () => {
+    // リンクをコピーした風のトーストを表示
+    setShowInviteToast(true);
+    setTimeout(() => setShowInviteToast(false), 3000);
+  };
+
+  const handleSendChat = () => {
+    if (!newChat.trim()) return;
+    setChatMessages([...chatMessages, { id: Date.now(), user: "me", text: newChat, time: "Now" }]);
+    setNewChat("");
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-night-navy/95 backdrop-blur-xl flex flex-col">
       <header className="p-4 flex justify-between items-center glass-panel rounded-none border-t-0 border-x-0">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-sm font-semibold text-red-400">Live</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-sm font-semibold text-red-400">Live</span>
+          </div>
+          <div className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-full text-xs text-indigo-300 border border-indigo-500/30">
+            <Clock8 className="w-3 h-3" />
+            <span>残り {Math.floor(timeLeft / 60)}時間{timeLeft % 60}分</span>
+          </div>
         </div>
-        <button onClick={onClose} className="p-2 glass-button rounded-full text-gray-400">
-          <X className="w-5 h-5" />
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => setTimeLeft(timeLeft + 30)} className="text-xs text-indigo-400 border border-indigo-500/50 px-2 py-1 rounded-full hover:bg-indigo-500/20">
+            +30分延長
+          </button>
+          <button onClick={handleShare} className="p-2 glass-button rounded-full text-indigo-300 relative group">
+            <LinkIcon className="w-5 h-5" />
+            <div className="absolute -bottom-8 right-0 text-[10px] whitespace-nowrap bg-indigo-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              リンクをコピー
+            </div>
+          </button>
+          <button onClick={onClose} className="p-2 glass-button rounded-full text-gray-400">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </header>
+
+      {showInviteToast && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-indigo-500/90 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-[0_0_15px_rgba(99,102,241,0.5)] animate-in fade-in slide-in-from-top-4">
+          ルームのリンクをコピーしました
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center">
         {/* Speaker Area */}
-        <div className="mb-10 text-center">
+        <div className="mb-8 text-center">
           <div className="relative mb-4">
             <div className="w-24 h-24 rounded-full bg-indigo-900 mx-auto animate-[pulse_2s_ease-in-out_infinite] opacity-50 absolute inset-0 scale-125" />
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 mx-auto relative z-10 border-4 border-night-navy" />
@@ -329,27 +428,72 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
         {/* Listeners Area */}
         <div className="w-full">
           <h3 className="text-xs font-semibold text-gray-400 mb-3 px-2">Listeners (15)</h3>
-          <div className="flex flex-wrap gap-3">
-            {[1,2,3,4,5].map(i => (
-               <div key={i} className="w-10 h-10 rounded-full bg-white/10" />
+          <div className="flex flex-wrap gap-4 justify-center">
+            {[
+              { id: 1, name: "kenta", canInvite: true },
+              { id: 2, name: "anonymous_owl", canInvite: true },
+              { id: 3, name: "user123", canInvite: true },
+              { id: 4, name: "sleepy", canInvite: true },
+              { id: 5, name: "nightowl", canInvite: true }
+            ].map(listener => (
+               <div key={listener.id} className="flex flex-col items-center gap-1 group">
+                 <div className="relative cursor-pointer">
+                   <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xs text-white/50 border border-white/5 group-hover:border-indigo-400/50 transition-colors">
+                     {listener.name.substring(0,2)}
+                   </div>
+
+                   {/* Invite to Speak Button (Visible to Host) */}
+                   <button
+                     className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-indigo-500 border-2 border-night-navy flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                     title="スピーカーに招待"
+                     onClick={() => alert(`${listener.name} をスピーカーに招待しました`)}
+                   >
+                     <Mic className="w-3 h-3" />
+                   </button>
+                 </div>
+                 <span className="text-[10px] text-gray-400 max-w-[48px] truncate">{listener.name}</span>
+               </div>
             ))}
           </div>
         </div>
       </div>
 
       {/* Controls & Chat */}
-      <div className="glass-panel rounded-none rounded-t-3xl border-b-0 border-x-0 p-4 pb-safe flex flex-col gap-4">
+      <div className="glass-panel rounded-none rounded-t-3xl border-b-0 border-x-0 p-4 pb-safe flex flex-col gap-4 max-h-[40vh]">
+        {/* Chat Timeline */}
+        <div className="flex-1 overflow-y-auto space-y-3 mb-2 px-2 scrollbar-hide">
+          {chatMessages.map(msg => (
+            <div key={msg.id} className="flex flex-col">
+              <div className="flex items-baseline gap-2">
+                <span className="font-semibold text-xs text-white/80">{msg.user}</span>
+                <span className="text-[10px] text-gray-500">{msg.time}</span>
+              </div>
+              <p className="text-sm text-white/90">{msg.text}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="flex justify-center gap-6 pb-4 border-b border-white/10">
-          <button className="glass-button w-14 h-14 rounded-full flex items-center justify-center text-white/80">
+          <button className="glass-button w-14 h-14 rounded-full flex items-center justify-center text-white/80 hover:bg-white/10">
             <MicOff className="w-6 h-6" />
           </button>
-          <button className="glass-button w-14 h-14 rounded-full flex items-center justify-center text-white/80">
+          <button className="glass-button w-14 h-14 rounded-full flex items-center justify-center text-white/80 hover:bg-white/10">
             <Volume2 className="w-6 h-6" />
           </button>
         </div>
         <div className="flex gap-2">
-           <input type="text" placeholder="コメントを送信..." className="flex-1 glass-panel rounded-full px-4 py-2 text-sm outline-none" />
-           <button className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-indigo-300">
+           <input
+             type="text"
+             value={newChat}
+             onChange={e => setNewChat(e.target.value)}
+             onKeyDown={e => e.key === 'Enter' && handleSendChat()}
+             placeholder="コメントを送信..."
+             className="flex-1 glass-panel rounded-full px-4 py-2 text-sm outline-none bg-black/20"
+           />
+           <button
+             onClick={handleSendChat}
+             className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-indigo-300 hover:bg-indigo-500/20"
+           >
              <Send className="w-4 h-4" />
            </button>
         </div>
