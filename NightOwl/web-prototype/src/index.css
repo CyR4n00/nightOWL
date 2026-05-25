@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-night-navy: #0B0C10;
+  /* 少し明るく青みを足したミッドナイトブルーに変更 */
+  --color-night-navy: #151828;
 }
 
 @layer utilities {
