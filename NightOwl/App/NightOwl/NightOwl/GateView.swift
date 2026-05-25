@@ -53,7 +53,7 @@ struct GateView: View {
             }
             .padding(.bottom, 20)
         }
-        .background(Color.black.edgesIgnoringSafeArea(.all))
+        .background(nightNavy.edgesIgnoringSafeArea(.all))
     }
 
     func updateCountdown() {

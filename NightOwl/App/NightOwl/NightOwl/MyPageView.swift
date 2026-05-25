@@ -8,7 +8,7 @@ struct MyPageView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
+                nightNavy.edgesIgnoringSafeArea(.all)
 
                 VStack(spacing: 24) {
                     // プロフィール部分
@@ -37,10 +37,13 @@ struct MyPageView: View {
                                 isPremium = true
                             }
                             .font(.caption)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
-                            .background(Color.orange)
-                            .cornerRadius(10)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .glassStyle(cornerRadius: 15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(LinearGradient(gradient: Gradient(colors: [.orange, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+                            )
                             .foregroundColor(.white)
                         }
                     }
@@ -62,8 +65,7 @@ struct MyPageView: View {
                             Spacer()
                         }
                         .padding()
-                        .background(Color(white: 0.1))
-                        .cornerRadius(10)
+                        .glassStyle(cornerRadius: 16)
                         .onTapGesture {
                             if isPremium {
                                 showSecretPast = true
@@ -96,7 +98,7 @@ struct SecretPastView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(white: 0.05).edgesIgnoringSafeArea(.all)
+                nightNavy.edgesIgnoringSafeArea(.all)
 
                 VStack {
                     Text("ここはあなただけの秘密の場所です。\n過去の夜に書き込んだ記録が残っています。")
@@ -106,13 +108,23 @@ struct SecretPastView: View {
 
                     List {
                         Text("3日前の夜: 明日も仕事か...休みたい。")
-                            .listRowBackground(Color.black)
+                            .padding(.vertical, 8)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .glassStyle(cornerRadius: 12)
                             .foregroundColor(.white)
+                            .padding(.vertical, 4)
+
                         Text("1週間前の夜: 映画観てたらこんな時間。最高。")
-                            .listRowBackground(Color.black)
+                            .padding(.vertical, 8)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .glassStyle(cornerRadius: 12)
                             .foregroundColor(.white)
+                            .padding(.vertical, 4)
                     }
                     .listStyle(PlainListStyle())
+                    .background(Color.clear)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

@@ -20,7 +20,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
+                nightNavy.edgesIgnoringSafeArea(.all)
 
                 VStack {
                     // タイムライン
@@ -37,8 +37,7 @@ struct HomeView: View {
                     HStack {
                         TextField("夜の独り言...", text: $newPostText)
                             .padding()
-                            .background(Color(white: 0.15))
-                            .cornerRadius(20)
+                            .glassStyle(cornerRadius: 20)
                             .foregroundColor(.white)
 
                         Button(action: {
@@ -51,13 +50,13 @@ struct HomeView: View {
                             Image(systemName: "paperplane.fill")
                                 .foregroundColor(.indigo)
                                 .padding()
-                                .background(Color(white: 0.15))
-                                .clipShape(Circle())
+                                .glassStyle(cornerRadius: 25)
                         }
                     }
                     .padding()
                 }
             }
+            .background(nightNavy.edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -96,8 +95,7 @@ struct PostRow: View {
                 .padding(.leading, 38) // アイコンの幅分インデント
         }
         .padding()
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
+        .glassStyle(cornerRadius: 16)
     }
 }
 

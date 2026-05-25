@@ -23,7 +23,7 @@ struct FriendChatView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
+                nightNavy.edgesIgnoringSafeArea(.all)
 
                 VStack {
                     List {
@@ -42,14 +42,20 @@ struct FriendChatView: View {
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
-                                .padding(.vertical, 8)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal)
+                                .glassStyle(cornerRadius: 12)
+                                .padding(.vertical, 4)
                             }
-                            .listRowBackground(Color.black)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                         }
                     }
                     .listStyle(PlainListStyle())
+                    .background(Color.clear)
                 }
             }
+            .background(nightNavy.edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -78,7 +84,7 @@ struct ChatDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
+                nightNavy.edgesIgnoringSafeArea(.all)
                 VStack {
                     ScrollView {
                         LazyVStack(spacing: 12) {
@@ -88,15 +94,16 @@ struct ChatDetailView: View {
                                         Spacer()
                                         Text(message.text)
                                             .padding()
-                                            .background(Color.indigo)
+                                            // 自分のメッセージは少し青みを帯びたガラス
+                                            .background(Color.indigo.opacity(0.3))
+                                            .glassStyle(cornerRadius: 16)
                                             .foregroundColor(.white)
-                                            .cornerRadius(16)
                                     } else {
                                         Text(message.text)
                                             .padding()
-                                            .background(Color(white: 0.2))
+                                            // 相手は普通のガラス
+                                            .glassStyle(cornerRadius: 16)
                                             .foregroundColor(.white)
-                                            .cornerRadius(16)
                                         Spacer()
                                     }
                                 }
@@ -110,8 +117,7 @@ struct ChatDetailView: View {
                     HStack {
                         TextField("メッセージを入力...", text: $newMessageText)
                             .padding()
-                            .background(Color(white: 0.15))
-                            .cornerRadius(20)
+                            .glassStyle(cornerRadius: 20)
                             .foregroundColor(.white)
 
                         Button(action: {
@@ -123,13 +129,13 @@ struct ChatDetailView: View {
                             Image(systemName: "paperplane.fill")
                                 .foregroundColor(.indigo)
                                 .padding()
-                                .background(Color(white: 0.15))
-                                .clipShape(Circle())
+                                .glassStyle(cornerRadius: 25)
                         }
                     }
                     .padding()
                 }
             }
+            .background(nightNavy.edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
