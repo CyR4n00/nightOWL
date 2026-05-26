@@ -70,6 +70,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
 function MainApp({ theme, setTheme }: { theme: string, setTheme: (t: any) => void }) {
   const [activeTab, setActiveTab] = useState('home');
   const [isPremium, setIsPremium] = useState(false);
+  const [isVoiceRoomActive, setIsVoiceRoomActive] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden pb-24">
@@ -88,19 +89,21 @@ function MainApp({ theme, setTheme }: { theme: string, setTheme: (t: any) => voi
         <main className="p-4 space-y-4 h-full">
           {activeTab === 'home' && <HomeView />}
           {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
-          {activeTab === 'voice' && <VoiceRoomMainView />}
+          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
           {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} />}
         </main>
       </div>
 
-      <nav className="fixed bottom-0 left-0 w-full z-20 flex justify-center pb-safe">
-        <div className="glass-panel w-full max-w-lg mx-auto flex justify-around p-4 rounded-none rounded-t-[3rem] border-b-0 border-x-0 bg-white/5">
-          <TabButton icon={<Home />} label="ホーム" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-          <TabButton icon={<MessageSquare />} label="チャット" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
-          <TabButton icon={<Headphones />} label="音声ルーム" isActive={activeTab === 'voice'} onClick={() => setActiveTab('voice')} />
-          <TabButton icon={<User />} label="マイページ" isActive={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
-        </div>
-      </nav>
+      {!isVoiceRoomActive && (
+        <nav className="fixed bottom-0 left-0 w-full z-20 flex justify-center pb-safe">
+          <div className="glass-panel w-full max-w-lg mx-auto flex justify-around p-4 rounded-none rounded-t-[3rem] border-b-0 border-x-0 bg-white/5">
+            <TabButton icon={<Home />} label="ホーム" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+            <TabButton icon={<MessageSquare />} label="チャット" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
+            <TabButton icon={<Headphones />} label="音声ルーム" isActive={activeTab === 'voice'} onClick={() => setActiveTab('voice')} />
+            <TabButton icon={<User />} label="マイページ" isActive={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
+          </div>
+        </nav>
+      )}
     </div>
   );
 }
@@ -272,10 +275,16 @@ function FriendChatView({ isPremium }: { isPremium: boolean }) {
   );
 }
 
-function VoiceRoomMainView() {
+function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
   const [activeRoom, setActiveRoom] = useState<boolean>(false);
   const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
   const [selectedBgm, setSelectedBgm] = useState<'none' | 'lofi' | 'rain' | 'fire'>('lofi');
+
+  useEffect(() => {
+    if (onActiveChange) {
+      onActiveChange(activeRoom);
+    }
+  }, [activeRoom, onActiveChange]);
 
   if (activeRoom) {
     return <VoiceRoomView onClose={() => setActiveRoom(false)} initialBgm={selectedBgm} />;
@@ -496,7 +505,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
   );
 }
 
-function VoiceRoomView({ onClose, initialBgm = 'lofi' }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire' }) {
+function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire', isHost?: boolean }) {
   const [showInviteToast, setShowInviteToast] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 120 minutes = 2 hours mock
   const [chatMessages, setChatMessages] = useState([
@@ -527,9 +536,9 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi' }: { onClose: () => void, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-3xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black/40 backdrop-blur-md">
       {/* 枠なしの透過ヘッダー */}
-      <header className="p-4 flex justify-between items-center bg-transparent relative">
+      <header className="p-4 flex justify-between items-start bg-transparent relative z-10 pt-safe">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -542,17 +551,24 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi' }: { onClose: () => void, 
             </div>
           </div>
 
-          {/* BGM Playing Indicator (Clickable to change BGM) */}
+          {/* BGM Playing Indicator */}
           <div className="relative">
-            <button
-              onClick={() => setShowBgmMenu(!showBgmMenu)}
-              className="flex items-center gap-1 text-[10px] text-indigo-300 opacity-80 hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded-full border border-indigo-500/20"
-            >
-              {currentBgm !== 'none' ? <Music4 className="w-3 h-3 animate-bounce" /> : <Music className="w-3 h-3" />}
-              <span>{bgmLabels[currentBgm]} {currentBgm !== 'none' && '演奏中...'} ▾</span>
-            </button>
+            {isHost ? (
+              <button
+                onClick={() => setShowBgmMenu(!showBgmMenu)}
+                className="flex items-center gap-1 text-[10px] text-indigo-300 opacity-80 hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded-full border border-indigo-500/20"
+              >
+                {currentBgm !== 'none' ? <Music4 className="w-3 h-3 animate-bounce" /> : <Music className="w-3 h-3" />}
+                <span>{bgmLabels[currentBgm]} {currentBgm !== 'none' && '演奏中...'} ▾</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-1 text-[10px] text-indigo-300 opacity-80 bg-white/5 px-2 py-1 rounded-full border border-indigo-500/20 w-fit">
+                {currentBgm !== 'none' ? <Music4 className="w-3 h-3 animate-bounce" /> : <Music className="w-3 h-3" />}
+                <span>{bgmLabels[currentBgm]} {currentBgm !== 'none' && '演奏中...'}</span>
+              </div>
+            )}
 
-            {showBgmMenu && (
+            {showBgmMenu && isHost && (
               <div className="absolute top-full left-0 mt-1 glass-panel p-2 flex flex-col gap-1 w-32 z-50 animate-in fade-in slide-in-from-top-2">
                 {(Object.keys(bgmLabels) as Array<keyof typeof bgmLabels>).map(key => (
                   <button
@@ -568,19 +584,25 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi' }: { onClose: () => void, 
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button onClick={() => setTimeLeft(timeLeft + 30)} className="text-xs font-semibold text-indigo-300 border border-indigo-500/40 bg-indigo-500/10 px-3 py-1.5 rounded-full hover:bg-indigo-500/30 transition-colors backdrop-blur-sm">
-            +30分延長
-          </button>
-          <button onClick={handleShare} className="p-2 rounded-full bg-black/20 border border-white/10 text-indigo-300 relative group hover:bg-white/10 transition-colors backdrop-blur-sm">
-            <LinkIcon className="w-5 h-5" />
-            <div className="absolute -bottom-8 right-0 text-[10px] whitespace-nowrap bg-indigo-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-              リンクをコピー
-            </div>
-          </button>
-          <button onClick={onClose} className="p-2 rounded-full bg-black/20 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors backdrop-blur-sm">
-            <X className="w-5 h-5" />
-          </button>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
+            {isHost && (
+              <button onClick={() => setTimeLeft(timeLeft + 30)} className="text-xs font-semibold text-indigo-300 border border-indigo-500/40 bg-indigo-500/10 px-3 py-1.5 rounded-full hover:bg-indigo-500/30 transition-colors backdrop-blur-sm whitespace-nowrap">
+                +30分延長
+              </button>
+            )}
+            <button onClick={onClose} className="p-2 rounded-full bg-black/20 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors backdrop-blur-sm">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          {isHost && (
+            <button onClick={handleShare} className="p-2 rounded-full bg-black/20 border border-white/10 text-indigo-300 relative group hover:bg-white/10 transition-colors backdrop-blur-sm">
+              <LinkIcon className="w-5 h-5" />
+              <div className="absolute -bottom-8 right-0 text-[10px] whitespace-nowrap bg-indigo-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                リンクをコピー
+              </div>
+            </button>
+          )}
         </div>
       </header>
 
