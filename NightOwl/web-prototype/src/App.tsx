@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8, Camera, Music, Play, Music4 } from 'lucide-react';
+import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8, Camera, Music, Play, Music4, Search } from 'lucide-react';
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -168,12 +168,14 @@ function HomeView() {
 
 function FriendChatView({ isPremium }: { isPremium: boolean }) {
   const [chatTab, setChatTab] = useState<'friends' | 'open'>('friends');
+  const [selectedFriend, setSelectedFriend] = useState<{ id: number, name: string, status: string } | null>(null);
   const [openChatMessages, setOpenChatMessages] = useState([
     { id: 1, user: "unknown_owl", text: "誰か起きてる？", time: "01:20", isPremiumUser: false },
     { id: 2, user: "sleepy", text: "起きてるよー", time: "01:21", isPremiumUser: false },
     { id: 3, user: "night_king", text: "映画みてる🎬", time: "01:25", isPremiumUser: true },
   ]);
   const [newChat, setNewChat] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const friends = [
     { id: 1, name: "yuki", status: "Online" },
@@ -181,11 +183,17 @@ function FriendChatView({ isPremium }: { isPremium: boolean }) {
     { id: 3, name: "anonymous_owl", status: "Offline" },
   ];
 
+  const filteredFriends = friends.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
   const handleSendOpenChat = () => {
     if (!newChat.trim()) return;
     setOpenChatMessages([...openChatMessages, { id: Date.now(), user: "me", text: newChat, time: "Now", isPremiumUser: isPremium }]);
     setNewChat("");
   };
+
+  if (selectedFriend) {
+    return <PrivateChatView friend={selectedFriend} onClose={() => setSelectedFriend(null)} />;
+  }
 
   return (
     <div className="flex flex-col gap-4 h-full pb-20">
@@ -206,14 +214,36 @@ function FriendChatView({ isPremium }: { isPremium: boolean }) {
 
       {chatTab === 'friends' && (
         <div className="flex flex-col gap-3 mt-2">
-          <div className="flex justify-between items-center px-2 py-1">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              placeholder="ユーザーを検索..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full glass-panel pl-10 pr-4 py-3 text-sm outline-none bg-black/10 placeholder:text-gray-500"
+            />
+          </div>
+
+          <div className="flex justify-between items-center px-2 py-1 mt-2">
             <span className="text-xs text-gray-400 font-semibold">フレンド枠</span>
             <span className="text-xs text-indigo-300 font-numbers">
               {friends.length} / {isPremium ? '∞' : '5'} 人
             </span>
           </div>
-          {friends.map(friend => (
-            <button key={friend.id} className="glass-button p-4 flex items-center gap-4 text-left w-full">
+
+          {filteredFriends.length === 0 && (
+            <div className="text-center text-sm text-gray-500 py-8">
+              ユーザーが見つかりません
+            </div>
+          )}
+
+          {filteredFriends.map(friend => (
+            <button
+              key={friend.id}
+              onClick={() => setSelectedFriend(friend)}
+              className="glass-button p-4 flex items-center gap-4 text-left w-full hover:bg-white/10"
+            >
               <div className="relative">
                 <div className="w-12 h-12 rounded-full bg-white/10" />
                 <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-night-navy ${friend.status === 'Online' ? 'bg-green-400' : 'bg-gray-500'}`} />
@@ -271,6 +301,79 @@ function FriendChatView({ isPremium }: { isPremium: boolean }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function PrivateChatView({ friend, onClose }: { friend: { name: string, status: string }, onClose: () => void }) {
+  const [messages, setMessages] = useState([
+    { id: 1, isMe: false, text: "起きてる？", time: "01:10" },
+    { id: 2, isMe: true, text: "起きてるよー。眠れない。", time: "01:12" },
+    { id: 3, isMe: false, text: "同じく。明日早いのに最悪。", time: "01:15" }
+  ]);
+  const [newMsg, setNewMsg] = useState("");
+
+  const handleSend = () => {
+    if (!newMsg.trim()) return;
+    setMessages([...messages, { id: Date.now(), isMe: true, text: newMsg, time: "Now" }]);
+    setNewMsg("");
+  };
+
+  return (
+    <div className="flex flex-col h-full absolute inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
+      <header className="p-4 flex items-center justify-between bg-transparent border-b border-white/10 z-10 pt-safe">
+        <div className="flex items-center gap-3">
+          <button onClick={onClose} className="text-indigo-400 p-2 -ml-2">
+            ← 戻る
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-8 h-8 rounded-full bg-white/10" />
+              <div className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-night-navy ${friend.status === 'Online' ? 'bg-green-400' : 'bg-gray-500'}`} />
+            </div>
+            <div>
+              <h2 className="font-bold text-sm text-white/90">{friend.name}</h2>
+              <p className="text-[10px] text-gray-400">{friend.status}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map(msg => (
+          <div key={msg.id} className={`flex flex-col ${msg.isMe ? 'items-end' : 'items-start'}`}>
+            <div className={`flex items-baseline gap-2 ${msg.isMe ? 'flex-row-reverse' : ''}`}>
+              <p className={`text-sm p-3 rounded-2xl max-w-[80%] ${
+                msg.isMe
+                  ? 'bg-indigo-500/30 text-white rounded-tr-none border border-indigo-500/20'
+                  : 'bg-white/10 text-white/90 rounded-tl-none border border-white/5'
+              }`}>
+                {msg.text}
+              </p>
+              <span className="text-[10px] font-numbers text-gray-500">{msg.time}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="p-4 bg-transparent border-t border-white/5 mb-16">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newMsg}
+            onChange={e => setNewMsg(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            placeholder="メッセージを入力..."
+            className="flex-1 glass-panel rounded-full px-4 py-2 text-sm outline-none bg-black/20"
+          />
+          <button
+            onClick={handleSend}
+            className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-indigo-300 hover:bg-indigo-500/20"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
