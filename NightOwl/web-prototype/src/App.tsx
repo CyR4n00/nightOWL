@@ -275,13 +275,14 @@ function FriendChatView({ isPremium }: { isPremium: boolean }) {
 function VoiceRoomMainView() {
   const [activeRoom, setActiveRoom] = useState<boolean>(false);
   const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
+  const [selectedBgm, setSelectedBgm] = useState<'none' | 'lofi' | 'rain' | 'fire'>('lofi');
 
   if (activeRoom) {
-    return <VoiceRoomView onClose={() => setActiveRoom(false)} />;
+    return <VoiceRoomView onClose={() => setActiveRoom(false)} initialBgm={selectedBgm} />;
   }
 
   if (showRoomSettings) {
-    return <VoiceRoomSettings onClose={() => setShowRoomSettings(false)} onStart={() => { setShowRoomSettings(false); setActiveRoom(true); }} />;
+    return <VoiceRoomSettings onClose={() => setShowRoomSettings(false)} onStart={(bgm) => { setSelectedBgm(bgm); setShowRoomSettings(false); setActiveRoom(true); }} />;
   }
 
   return (
@@ -332,7 +333,7 @@ function VoiceRoomMainView() {
   );
 }
 
-function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart: () => void }) {
+function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart: (bgm: 'none' | 'lofi' | 'rain' | 'fire') => void }) {
   const [privacy, setPrivacy] = useState<'open' | 'private'>('open');
   const [speakerRule, setSpeakerRule] = useState<'request' | 'invite_only'>('request');
   const [autoCloseTimer, setAutoCloseTimer] = useState<'none' | '1h' | '2h'>('none');
@@ -485,7 +486,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
         </div>
 
         <button
-          onClick={onStart}
+          onClick={() => onStart(bgm)}
           className="mt-4 glass-button w-full py-4 font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 border-none shadow-[0_0_20px_rgba(99,102,241,0.4)]"
         >
           ルームを開始する
@@ -495,7 +496,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
   );
 }
 
-function VoiceRoomView({ onClose }: { onClose: () => void }) {
+function VoiceRoomView({ onClose, initialBgm = 'lofi' }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire' }) {
   const [showInviteToast, setShowInviteToast] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 120 minutes = 2 hours mock
   const [chatMessages, setChatMessages] = useState([
@@ -503,6 +504,15 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
     { id: 2, user: "sleepy", text: "BGMいい感じですね", time: "01:08" },
   ]);
   const [newChat, setNewChat] = useState("");
+  const [currentBgm, setCurrentBgm] = useState<'none' | 'lofi' | 'rain' | 'fire'>(initialBgm);
+  const [showBgmMenu, setShowBgmMenu] = useState(false);
+
+  const bgmLabels = {
+    none: "無音",
+    lofi: "深夜のLo-Fi",
+    rain: "静かな雨音",
+    fire: "焚き火"
+  };
 
   const handleShare = () => {
     // リンクをコピーした風のトーストを表示
@@ -532,10 +542,29 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          {/* BGM Playing Indicator */}
-          <div className="flex items-center gap-1 text-[10px] text-indigo-300 opacity-80">
-            <Music4 className="w-3 h-3 animate-bounce" />
-            <span>深夜のLo-Fi 演奏中...</span>
+          {/* BGM Playing Indicator (Clickable to change BGM) */}
+          <div className="relative">
+            <button
+              onClick={() => setShowBgmMenu(!showBgmMenu)}
+              className="flex items-center gap-1 text-[10px] text-indigo-300 opacity-80 hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded-full border border-indigo-500/20"
+            >
+              {currentBgm !== 'none' ? <Music4 className="w-3 h-3 animate-bounce" /> : <Music className="w-3 h-3" />}
+              <span>{bgmLabels[currentBgm]} {currentBgm !== 'none' && '演奏中...'} ▾</span>
+            </button>
+
+            {showBgmMenu && (
+              <div className="absolute top-full left-0 mt-1 glass-panel p-2 flex flex-col gap-1 w-32 z-50 animate-in fade-in slide-in-from-top-2">
+                {(Object.keys(bgmLabels) as Array<keyof typeof bgmLabels>).map(key => (
+                  <button
+                    key={key}
+                    onClick={() => { setCurrentBgm(key); setShowBgmMenu(false); }}
+                    className={`text-xs text-left px-2 py-1.5 rounded transition-colors ${currentBgm === key ? 'bg-indigo-500/30 text-indigo-200' : 'text-gray-400 hover:bg-white/10 hover:text-white'}`}
+                  >
+                    {bgmLabels[key]}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
