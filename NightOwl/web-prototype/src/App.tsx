@@ -3,13 +3,18 @@ import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
+  const [theme, setTheme] = useState<'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy'>('default');
+
+  useEffect(() => {
+    document.body.className = `theme-${theme}`;
+  }, [theme]);
 
   // For demo purposes, we allow toggling
   if (!isNightTime) {
     return <GateView onEnter={() => setIsNightTime(true)} />;
   }
 
-  return <MainApp />;
+  return <MainApp theme={theme} setTheme={setTheme} />;
 }
 
 function GateView({ onEnter }: { onEnter: () => void }) {
@@ -62,7 +67,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
   );
 }
 
-function MainApp() {
+function MainApp({ theme, setTheme }: { theme: string, setTheme: (t: any) => void }) {
   const [activeTab, setActiveTab] = useState('home');
   const [isPremium, setIsPremium] = useState(false);
 
@@ -84,12 +89,12 @@ function MainApp() {
           {activeTab === 'home' && <HomeView />}
           {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
           {activeTab === 'voice' && <VoiceRoomMainView />}
-          {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} />}
+          {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} />}
         </main>
       </div>
 
       <nav className="fixed bottom-0 left-0 w-full z-20 flex justify-center pb-safe">
-        <div className="glass-panel w-full max-w-lg mx-auto flex justify-around p-4 rounded-none rounded-t-3xl border-b-0 border-x-0">
+        <div className="glass-panel w-full max-w-lg mx-auto flex justify-around p-4 rounded-none rounded-t-[3rem] border-b-0 border-x-0 bg-white/5">
           <TabButton icon={<Home />} label="ホーム" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
           <TabButton icon={<MessageSquare />} label="チャット" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
           <TabButton icon={<Headphones />} label="音声ルーム" isActive={activeTab === 'voice'} onClick={() => setActiveTab('voice')} />
@@ -602,9 +607,10 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
   );
 }
 
-function MyPageView({ isPremium, setIsPremium }: { isPremium: boolean, setIsPremium: (v: boolean) => void }) {
+function MyPageView({ isPremium, setIsPremium, theme, setTheme }: { isPremium: boolean, setIsPremium: (v: boolean) => void, theme: string, setTheme: (t: any) => void }) {
   const [showPast, setShowPast] = useState(false);
   const [userIcon, setUserIcon] = useState<string | null>(null);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -612,6 +618,37 @@ function MyPageView({ isPremium, setIsPremium }: { isPremium: boolean, setIsPrem
       setUserIcon(url);
     }
   };
+
+  if (showThemeSettings) {
+    const themes = [
+      { id: 'default', name: '星空 (Night Sky)' },
+      { id: 'aurora', name: 'オーロラ (Aurora)' },
+      { id: 'deepsea', name: '深海 (Deep Sea)' },
+      { id: 'dusk', name: '夕闇 (Dusk)' },
+      { id: 'galaxy', name: '銀河 (Galaxy)' },
+    ];
+
+    return (
+      <div className="flex flex-col gap-4 h-full">
+        <button onClick={() => setShowThemeSettings(false)} className="text-sm text-indigo-400 flex items-center gap-1 w-fit">
+          ← 戻る
+        </button>
+        <h2 className="font-bold text-lg mb-2">テーマの変更</h2>
+        <div className="flex flex-col gap-3">
+          {themes.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTheme(t.id)}
+              className={`glass-button p-4 flex items-center justify-between text-left ${theme === t.id ? 'ring-2 ring-indigo-500 bg-white/10' : ''}`}
+            >
+              <span className="font-semibold text-white/90">{t.name}</span>
+              {theme === t.id && <span className="text-indigo-400 text-sm">選択中</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (showPast) {
     return (
@@ -685,6 +722,14 @@ function MyPageView({ isPremium, setIsPremium }: { isPremium: boolean, setIsPrem
         >
           <Lock className="w-5 h-5" />
           <span className="font-semibold">夜の記録を振り返る</span>
+        </button>
+
+        <button
+          onClick={() => isPremium && setShowThemeSettings(true)}
+          className={`w-full glass-panel p-4 flex items-center gap-4 text-left transition-all mt-3 ${isPremium ? 'cursor-pointer hover:bg-white/10' : 'opacity-50 cursor-not-allowed'}`}
+        >
+          <Globe className="w-5 h-5" />
+          <span className="font-semibold">テーマ（背景）の着せ替え</span>
         </button>
       </div>
     </div>
