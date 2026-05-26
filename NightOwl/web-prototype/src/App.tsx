@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8, Camera } from 'lucide-react';
+import { Home, MessageSquare, User, Lock, Send, MicOff, Volume2, X, Globe, Users, Link as LinkIcon, Settings2, Plus, Headphones, Mic, Hand, Clock, Clock8, Camera, Music, Play, Music4 } from 'lucide-react';
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -336,6 +336,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
   const [privacy, setPrivacy] = useState<'open' | 'private'>('open');
   const [speakerRule, setSpeakerRule] = useState<'request' | 'invite_only'>('request');
   const [autoCloseTimer, setAutoCloseTimer] = useState<'none' | '1h' | '2h'>('none');
+  const [bgm, setBgm] = useState<'none' | 'lofi' | 'rain' | 'fire'>('none');
 
   return (
     <div className="flex flex-col gap-6 pt-4 h-full">
@@ -423,6 +424,39 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
 
         <div className="mt-2">
           <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-3">
+            <Music className="text-indigo-400 w-5 h-5" />
+            <h3 className="font-semibold text-white/90">ルームBGM</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setBgm('none')}
+              className={`glass-button py-3 text-sm text-center ${bgm === 'none' ? 'active' : ''}`}
+            >
+              無音
+            </button>
+            <button
+              onClick={() => setBgm('lofi')}
+              className={`glass-button py-3 text-sm text-center flex items-center justify-center gap-2 ${bgm === 'lofi' ? 'active' : ''}`}
+            >
+              <Play className="w-3 h-3" /> 深夜のLo-Fi
+            </button>
+            <button
+              onClick={() => setBgm('rain')}
+              className={`glass-button py-3 text-sm text-center flex items-center justify-center gap-2 ${bgm === 'rain' ? 'active' : ''}`}
+            >
+              <Play className="w-3 h-3" /> 静かな雨音
+            </button>
+            <button
+              onClick={() => setBgm('fire')}
+              className={`glass-button py-3 text-sm text-center flex items-center justify-center gap-2 ${bgm === 'fire' ? 'active' : ''}`}
+            >
+              <Play className="w-3 h-3" /> 焚き火
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-2">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-3">
             <Clock className="text-indigo-400 w-5 h-5" />
             <h3 className="font-semibold text-white/90">自動終了タイマー</h3>
             <span className="text-[10px] text-gray-400 ml-auto bg-white/5 px-2 py-1 rounded">朝6時までは任意延長可</span>
@@ -485,15 +519,23 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-3xl flex flex-col">
       {/* 枠なしの透過ヘッダー */}
-      <header className="p-4 flex justify-between items-center bg-transparent">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
-            <span className="text-sm font-semibold text-red-400 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">Live</span>
+      <header className="p-4 flex justify-between items-center bg-transparent relative">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
+              <span className="text-sm font-semibold text-red-400 text-neon">Live</span>
+            </div>
+            <div className="flex items-center gap-1 bg-black/20 px-3 py-1.5 rounded-full text-xs text-indigo-200 border border-indigo-500/20 backdrop-blur-sm">
+              <Clock8 className="w-3 h-3" />
+              <span>残り <span className="font-numbers text-sm">{Math.floor(timeLeft / 60)}</span>時間<span className="font-numbers text-sm">{timeLeft % 60}</span>分</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1 bg-black/20 px-3 py-1.5 rounded-full text-xs text-indigo-200 border border-indigo-500/20 backdrop-blur-sm">
-            <Clock8 className="w-3 h-3" />
-            <span>残り <span className="font-numbers text-sm">{Math.floor(timeLeft / 60)}</span>時間<span className="font-numbers text-sm">{timeLeft % 60}</span>分</span>
+
+          {/* BGM Playing Indicator */}
+          <div className="flex items-center gap-1 text-[10px] text-indigo-300 opacity-80">
+            <Music4 className="w-3 h-3 animate-bounce" />
+            <span>深夜のLo-Fi 演奏中...</span>
           </div>
         </div>
 
