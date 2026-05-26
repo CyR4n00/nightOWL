@@ -64,6 +64,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
+  const [isPremium, setIsPremium] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden pb-24">
@@ -81,9 +82,9 @@ function MainApp() {
 
         <main className="p-4 space-y-4 h-full">
           {activeTab === 'home' && <HomeView />}
-          {activeTab === 'chat' && <FriendChatView />}
+          {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
           {activeTab === 'voice' && <VoiceRoomMainView />}
-          {activeTab === 'profile' && <MyPageView />}
+          {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} />}
         </main>
       </div>
 
@@ -157,11 +158,12 @@ function HomeView() {
   );
 }
 
-function FriendChatView() {
+function FriendChatView({ isPremium }: { isPremium: boolean }) {
   const [chatTab, setChatTab] = useState<'friends' | 'open'>('friends');
   const [openChatMessages, setOpenChatMessages] = useState([
-    { id: 1, user: "unknown_owl", text: "誰か起きてる？", time: "01:20" },
-    { id: 2, user: "sleepy", text: "起きてるよー", time: "01:21" },
+    { id: 1, user: "unknown_owl", text: "誰か起きてる？", time: "01:20", isPremiumUser: false },
+    { id: 2, user: "sleepy", text: "起きてるよー", time: "01:21", isPremiumUser: false },
+    { id: 3, user: "night_king", text: "映画みてる🎬", time: "01:25", isPremiumUser: true },
   ]);
   const [newChat, setNewChat] = useState("");
 
@@ -173,7 +175,7 @@ function FriendChatView() {
 
   const handleSendOpenChat = () => {
     if (!newChat.trim()) return;
-    setOpenChatMessages([...openChatMessages, { id: Date.now(), user: "me", text: newChat, time: "Now" }]);
+    setOpenChatMessages([...openChatMessages, { id: Date.now(), user: "me", text: newChat, time: "Now", isPremiumUser: isPremium }]);
     setNewChat("");
   };
 
@@ -196,6 +198,12 @@ function FriendChatView() {
 
       {chatTab === 'friends' && (
         <div className="flex flex-col gap-3 mt-2">
+          <div className="flex justify-between items-center px-2 py-1">
+            <span className="text-xs text-gray-400 font-semibold">フレンド枠</span>
+            <span className="text-xs text-indigo-300 font-numbers">
+              {friends.length} / {isPremium ? '∞' : '5'} 人
+            </span>
+          </div>
           {friends.map(friend => (
             <button key={friend.id} className="glass-button p-4 flex items-center gap-4 text-left w-full">
               <div className="relative">
@@ -208,6 +216,15 @@ function FriendChatView() {
               </div>
             </button>
           ))}
+          {!isPremium && (
+            <button
+              onClick={() => alert("プレミアムプランに登録するとフレンド枠が無限になります！")}
+              className="mt-2 glass-button py-3 flex items-center justify-center gap-2 text-indigo-300 text-sm border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/20"
+            >
+              <Plus className="w-4 h-4" />
+              フレンド枠を拡張する
+            </button>
+          )}
         </div>
       )}
 
@@ -217,10 +234,14 @@ function FriendChatView() {
             {openChatMessages.map(msg => (
               <div key={msg.id} className="flex flex-col">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-semibold text-xs text-indigo-300">{msg.user}</span>
+                  <span className={`font-semibold text-xs ${msg.isPremiumUser ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]' : 'text-indigo-300'}`}>
+                    {msg.user} {msg.isPremiumUser && '🌙'}
+                  </span>
                   <span className="text-xs font-numbers text-gray-500">{msg.time}</span>
                 </div>
-                <p className="text-sm text-white/90 bg-white/5 p-3 rounded-2xl rounded-tl-none mt-1 inline-block w-fit max-w-[80%]">{msg.text}</p>
+                <p className={`text-sm p-3 rounded-2xl rounded-tl-none mt-1 inline-block w-fit max-w-[80%] ${msg.isPremiumUser ? 'text-amber-100 bg-amber-500/10 border border-amber-500/30 shadow-[0_0_10px_rgba(251,191,36,0.15)]' : 'text-white/90 bg-white/5'}`}>
+                  {msg.text}
+                </p>
               </div>
             ))}
           </div>
@@ -581,8 +602,7 @@ function VoiceRoomView({ onClose }: { onClose: () => void }) {
   );
 }
 
-function MyPageView() {
-  const [isPremium, setIsPremium] = useState(false);
+function MyPageView({ isPremium, setIsPremium }: { isPremium: boolean, setIsPremium: (v: boolean) => void }) {
   const [showPast, setShowPast] = useState(false);
   const [userIcon, setUserIcon] = useState<string | null>(null);
 
@@ -623,17 +643,22 @@ function MyPageView() {
     <div className="flex flex-col gap-8 items-center pt-8">
       <div className="text-center flex flex-col items-center gap-4">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full glass-panel flex items-center justify-center text-gray-500 overflow-hidden">
+          <div className={`w-24 h-24 rounded-full glass-panel flex items-center justify-center text-gray-500 overflow-hidden ${isPremium ? 'premium-glow' : ''}`}>
              {userIcon ? (
                <img src={userIcon} alt="User Icon" className="w-full h-full object-cover" />
              ) : (
                <User className="w-10 h-10" />
              )}
           </div>
-          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform">
+          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
              <Camera className="w-4 h-4" />
              <input type="file" accept="image/*" className="hidden" onChange={handleIconChange} />
           </label>
+          {isPremium && (
+            <div className="absolute -top-2 -right-2 text-2xl drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]">
+              🌙
+            </div>
+          )}
         </div>
         <div>
           <h2 className="font-bold text-xl">My Username</h2>
