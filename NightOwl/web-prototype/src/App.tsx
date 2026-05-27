@@ -50,7 +50,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
       <div className="glass-panel p-10 flex flex-col items-center gap-8 relative z-10 w-full max-w-md text-center">
         <Lock className="w-16 h-16 text-indigo-400 opacity-80" />
         <div>
-          <h1 className="text-3xl font-bold tracking-widest mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">NightOwl</h1>
+          <h1 className="text-3xl font-bold tracking-widest mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300 pb-2">NightOwl</h1>
           <p className="text-gray-400 text-sm">夜が来るまで、あと少し。</p>
         </div>
         <div className="text-6xl font-light tracking-widest font-numbers text-white/90">
@@ -83,7 +83,7 @@ function MainApp({ theme, setTheme }: { theme: string, setTheme: (t: any) => voi
 
       <div className="flex-1 relative z-10 w-full max-w-lg mx-auto">
         <header className="p-4 sticky top-0 z-20 flex justify-center bg-transparent">
-          <h1 className="font-bold text-indigo-300 tracking-widest text-xl drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]">NightOwl</h1>
+          <h1 className="font-bold text-indigo-300 tracking-widest text-xl drop-shadow-[0_0_8px_rgba(129,140,248,0.5)] pb-1">NightOwl</h1>
         </header>
 
         <main className="p-4 space-y-4 h-full">
