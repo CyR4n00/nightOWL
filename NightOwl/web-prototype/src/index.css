@@ -128,6 +128,12 @@ body {
 }
 
 /* テーマ：オーロラ（Aurora） */
+@keyframes aurora-wave {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+  33% { transform: scale(1.1) translate(5%, -5%); opacity: 0.7; }
+  66% { transform: scale(0.9) translate(-5%, 5%); opacity: 0.6; }
+  100% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+}
 .theme-aurora {
   background: linear-gradient(135deg, #0b1c2c 0%, #1a3c40 50%, #2a615a 100%);
   background-attachment: fixed;
@@ -135,17 +141,25 @@ body {
 .theme-aurora::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 70% 30%, rgba(120, 255, 214, 0.15) 0%, rgba(0,0,0,0) 60%),
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 70% 30%, rgba(120, 255, 214, 0.15) 0%, rgba(0,0,0,0) 50%),
               radial-gradient(circle at 30% 70%, rgba(168, 255, 120, 0.1) 0%, rgba(0,0,0,0) 50%);
   z-index: -1;
   pointer-events: none;
+  animation: aurora-wave 15s ease-in-out infinite alternate;
 }
 
 /* テーマ：深海（Deep Sea） */
+@keyframes bubble-rise {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+}
+
 .theme-deepsea {
   background: linear-gradient(180deg, #040814 0%, #0a1128 40%, #0d2146 100%);
   background-attachment: fixed;
@@ -163,18 +177,40 @@ body {
     radial-gradient(1px 1px at 250px 300px, rgba(255,255,255,0.5), rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 300px 300px;
-  opacity: 0.5; /* 泡のようなイメージ */
+  opacity: 0.3;
   z-index: -1;
   pointer-events: none;
 }
+/* Deep sea bubbles will be handled in JS mapping to .bubble elements */
+.bubble {
+  position: fixed;
+  bottom: -20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  animation: bubble-rise infinite ease-in;
+}
 
 /* テーマ：夕闇（Dusk） */
+@keyframes dusk-flow {
+  0% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
 .theme-dusk {
-  background: linear-gradient(180deg, #2b1b3d 0%, #47264a 40%, #764559 100%);
+  background: linear-gradient(180deg, #2b1b3d, #47264a, #764559, #8c424a, #2b1b3d);
+  background-size: 100% 400%;
   background-attachment: fixed;
+  animation: dusk-flow 20s ease infinite;
 }
 
 /* テーマ：銀河（Galaxy） */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 12px rgba(255,255,255,1)); }
+}
 .theme-galaxy {
   background: radial-gradient(circle at center, #2e1a47 0%, #150b24 50%, #0a0512 100%);
   background-attachment: fixed;
@@ -193,10 +229,9 @@ body {
     radial-gradient(4px 4px at 300px 90px, #c4e0e5, rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 200px 200px;
-  opacity: 0.9;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
   z-index: -1;
   pointer-events: none;
+  animation: twinkle 4s ease-in-out infinite;
 }
 
 

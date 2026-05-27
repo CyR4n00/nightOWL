@@ -6,15 +6,51 @@ export default function App() {
   const [theme, setTheme] = useState<'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy'>('default');
 
   useEffect(() => {
+    // Check if it's naturally night time (24:00 - 06:00) on mount
+    const checkTime = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      // 0 to 5 represents 00:00 to 05:59 (which is effectively up to 06:00)
+      if (hours >= 0 && hours < 6) {
+        setIsNightTime(true);
+      }
+    };
+    checkTime();
+  }, []);
+
+  useEffect(() => {
     document.body.className = `theme-${theme}`;
   }, [theme]);
 
-  // For demo purposes, we allow toggling
-  if (!isNightTime) {
-    return <GateView onEnter={() => setIsNightTime(true)} />;
-  }
+  // Handle deep sea bubbles
+  const bubbles = theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    size: `${Math.random() * 20 + 10}px`,
+    delay: `${Math.random() * 5}s`,
+    duration: `${Math.random() * 10 + 5}s`
+  })) : [];
 
-  return <MainApp theme={theme} setTheme={setTheme} />;
+  return (
+    <>
+      {/* Dynamic Background Effects */}
+      {theme === 'deepsea' && bubbles.map(b => (
+        <div key={b.id} className="bubble" style={{
+          left: b.left,
+          width: b.size,
+          height: b.size,
+          animationDelay: b.delay,
+          animationDuration: b.duration
+        }} />
+      ))}
+
+      {!isNightTime ? (
+        <GateView onEnter={() => setIsNightTime(true)} />
+      ) : (
+        <MainApp theme={theme} setTheme={setTheme} />
+      )}
+    </>
+  );
 }
 
 function GateView({ onEnter }: { onEnter: () => void }) {
@@ -23,24 +59,32 @@ function GateView({ onEnter }: { onEnter: () => void }) {
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
+      const hours = now.getHours();
+
+      // Check if it naturally entered 24:00 - 06:00 window
+      if (hours >= 0 && hours < 6) {
+        onEnter();
+        return;
+      }
+
       // 次の24:00までのカウントダウンを計算
       const tomorrow = new Date();
       tomorrow.setHours(24, 0, 0, 0);
       const diff = tomorrow.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setCountdown("00:00:00");
+        onEnter();
       } else {
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / 1000 / 60) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
+        const diffHours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const diffMinutes = Math.floor((diff / 1000 / 60) % 60);
+        const diffSeconds = Math.floor((diff / 1000) % 60);
         setCountdown(
-          `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          `${diffHours.toString().padStart(2, '0')}:${diffMinutes.toString().padStart(2, '0')}:${diffSeconds.toString().padStart(2, '0')}`
         );
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [onEnter]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
@@ -56,12 +100,7 @@ function GateView({ onEnter }: { onEnter: () => void }) {
         <div className="text-6xl font-light tracking-widest font-numbers text-white/90">
           {countdown}
         </div>
-        <button
-          onClick={onEnter}
-          className="glass-button px-6 py-3 mt-8 text-sm text-indigo-200 w-full"
-        >
-          【Debug】夜にする
-        </button>
+        {/* Mock button is removed for production use. Entry is handled automatically. */}
       </div>
     </div>
   );
