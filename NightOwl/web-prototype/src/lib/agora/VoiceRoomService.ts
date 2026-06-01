@@ -1,10 +1,5 @@
-/**
- * Placeholder for Agora RTC integration.
- * Once Agora is configured, you'll need the `agora-rtc-sdk-ng` package.
- * npm install agora-rtc-sdk-ng
- */
-
-// import AgoraRTC, { IAgoraRTCClient, IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
+import AgoraRTC from "agora-rtc-sdk-ng";
+import type { IAgoraRTCClient, IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
 
 export interface VoiceRoomServiceConfig {
     appId: string;
@@ -14,38 +9,60 @@ export interface VoiceRoomServiceConfig {
 }
 
 export class VoiceRoomService {
-    // private client: IAgoraRTCClient;
-    // private localAudioTrack: IMicrophoneAudioTrack | null = null;
+    private client: IAgoraRTCClient;
+    private localAudioTrack: IMicrophoneAudioTrack | null = null;
 
     constructor() {
-        // this.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-        console.log("VoiceRoomService skeleton initialized.");
+        this.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     }
 
     async joinRoom(config: VoiceRoomServiceConfig) {
         console.log(`Joining Voice Room: ${config.channel}...`);
-        // await this.client.join(config.appId, config.channel, config.token, config.uid);
 
         // Listeners setup
-        // this.client.on("user-published", async (user, mediaType) => {
-        //     await this.client.subscribe(user, mediaType);
-        //     if (mediaType === "audio") {
-        //         user.audioTrack?.play();
-        //     }
-        // });
+        this.client.on("user-published", async (user, mediaType) => {
+            await this.client.subscribe(user, mediaType);
+            if (mediaType === "audio") {
+                user.audioTrack?.play();
+            }
+        });
+
+        this.client.on("user-unpublished", (user) => {
+            console.log("User unpublished", user);
+        });
+
+        await this.client.join(config.appId, config.channel, config.token, config.uid);
         return true;
     }
 
     async publishAudio() {
         console.log("Requesting microphone and publishing audio...");
-        // this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        // await this.client.publish([this.localAudioTrack]);
+        try {
+            this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+            await this.client.publish([this.localAudioTrack]);
+            return true;
+        } catch (error) {
+            console.error("Failed to publish audio", error);
+            return false;
+        }
+    }
+
+    async toggleMute(mute: boolean) {
+        if (this.localAudioTrack) {
+            await this.localAudioTrack.setMuted(mute);
+            return true;
+        }
+        return false;
     }
 
     async leaveRoom() {
         console.log("Leaving voice room...");
-        // this.localAudioTrack?.close();
-        // await this.client.leave();
+        if (this.localAudioTrack) {
+            this.localAudioTrack.stop();
+            this.localAudioTrack.close();
+            this.localAudioTrack = null;
+        }
+        await this.client.leave();
     }
 }
 

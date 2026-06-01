@@ -99,13 +99,142 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
 }
 
 function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: () => void, isPremium: boolean, currentFriendCount: number }) {
-  // Dummy Add friend view
+  const [searchId, setSearchId] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
+  const [myUsername, setMyUsername] = useState("loading...");
+
+  useEffect(() => {
+    const fetchMyInfo = async () => {
+      const session = await supabase.auth.getSession();
+      const authUser = session.data.session?.user;
+      if (authUser) {
+        setMyUsername(authUser.user_metadata?.username || "unknown");
+      }
+    };
+    fetchMyInfo();
+  }, []);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`https://nightowl.app/invite/${myUsername}`);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleSearch = async () => {
+    if (!searchId.trim()) return;
+
+    // Search for user
+    const { data: targetUser, error: searchError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', searchId)
+      .single();
+
+    if (searchError || !targetUser) {
+      alert("ユーザーが見つかりませんでした。");
+      return;
+    }
+
+    // Get my public ID
+    const session = await supabase.auth.getSession();
+    const authUser = session.data.session?.user;
+    if (!authUser) return;
+
+    const { data: myData } = await supabase
+      .from('users')
+      .select('id')
+      .eq('supabase_auth_id', authUser.id)
+      .single();
+
+    if (!myData) return;
+
+    if (myData.id === targetUser.id) {
+      alert("自分自身は追加できません。");
+      return;
+    }
+
+    // Insert friend request (for prototype, we insert as 'accepted')
+    const { error: insertError } = await supabase
+      .from('friends')
+      .insert([
+        { user_id: myData.id, friend_id: targetUser.id, status: 'accepted' },
+        { user_id: targetUser.id, friend_id: myData.id, status: 'accepted' } // Bi-directional for prototype
+      ]);
+
+    if (insertError) {
+      console.error(insertError);
+      alert("フレンド追加に失敗しました。既にフレンドかもしれません。");
+    } else {
+      alert(`${searchId} をフレンドに追加しました！`);
+      onClose();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full absolute inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
-       <div className="p-6">
-         <h2 className="text-xl">Add Friend (Dummy)</h2>
-         <button onClick={onClose} className="mt-4 p-4 glass-button">Back</button>
-       </div>
+      <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe bg-transparent">
+        <button onClick={onClose} className="text-indigo-400 p-2 -ml-2">
+          ← キャンセル
+        </button>
+        <h2 className="font-bold text-sm text-white/90">フレンド追加</h2>
+        <div className="w-16"></div>
+      </header>
+
+      <div className="p-6 space-y-8 flex-1 overflow-y-auto">
+        {/* Limit Warning */}
+        {!isPremium && currentFriendCount >= 5 && (
+           <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-sm">
+             無料プランのフレンド枠（最大5人）に達しています。これ以上追加するにはプレミアムプランへのアップグレードが必要です。
+           </div>
+        )}
+
+        {/* ID Search */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-indigo-300">ID検索</h3>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300/50" />
+            <input
+              type="text"
+              placeholder="NightOwl IDを入力"
+              value={searchId}
+              onChange={e => setSearchId(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-indigo-300/30 outline-none focus:border-indigo-500/50"
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            disabled={!isPremium && currentFriendCount >= 5}
+            className="w-full p-4 rounded-xl bg-indigo-600 font-bold hover:bg-indigo-500 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            検索して追加
+          </button>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-xs text-gray-500 font-bold">OR</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        {/* Invite Link */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-indigo-300">招待リンク</h3>
+          <p className="text-xs text-gray-400 leading-relaxed">
+            このリンクを教えることで、相手からフレンド追加してもらうことができます。
+          </p>
+          <div className="glass-panel p-4 flex items-center justify-between gap-4">
+            <span className="text-sm text-white/80 truncate flex-1 font-numbers">
+              nightowl.app/invite/{myUsername}
+            </span>
+            <button
+              onClick={handleCopy}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-indigo-300"
+            >
+              {isCopied ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

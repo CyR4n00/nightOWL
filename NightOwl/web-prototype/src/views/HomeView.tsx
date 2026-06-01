@@ -13,7 +13,7 @@ export function HomeView() {
       .from('posts')
       .select(`
         *,
-        users:user_id ( username, display_name )
+        users!user_id ( username, display_name )
       `)
       .order('created_at', { ascending: false });
 
