@@ -1,0 +1,109 @@
+import { useState, useEffect } from "react";
+
+
+import { Send } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+
+export function HomeView() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [inputText, setInputText] = useState("");
+
+  const fetchPosts = async () => {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        *,
+        users:user_id ( username, display_name )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      setPosts(data.map(post => ({
+        id: post.id,
+        user: post.users?.username || 'unknown',
+        content: post.content,
+        time: new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      })));
+    } else {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+
+    // Setup realtime subscription
+    const subscription = supabase
+      .channel('public:posts')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+        fetchPosts();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+
+  const handlePost = async () => {
+    if (!inputText.trim()) return;
+    const session = await supabase.auth.getSession();
+    const authUser = session.data.session?.user;
+
+    if (!authUser) return;
+
+    // First get the public.users id for this auth user
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('supabase_auth_id', authUser.id)
+      .single();
+
+    if (userError || !userData) {
+      console.error("Could not find public user profile", userError);
+      return;
+    }
+
+    const { error } = await supabase.from('posts').insert([
+      { user_id: userData.id, content: inputText }
+    ]);
+
+    if (!error) {
+      setInputText("");
+    } else {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4 pb-20">
+      {posts.map(post => (
+        <div key={post.id} className="glass-panel p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+               {post.user.charAt(0).toUpperCase()}
+            </div>
+            <span className="font-semibold text-sm text-white/90">{post.user}</span>
+            <span className="text-sm font-numbers text-gray-500 ml-auto">{post.time}</span>
+          </div>
+          <p className="pl-11 text-white/80 text-sm leading-relaxed">{post.content}</p>
+        </div>
+      ))}
+
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-10">
+        <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">
+          <input
+            type="text"
+            value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            placeholder="夜の独り言..."
+            className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
+          />
+          <button onClick={handlePost} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors">
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

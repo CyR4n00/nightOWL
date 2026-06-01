@@ -1,0 +1,135 @@
+import { useState, useEffect } from "react";
+
+
+import { supabase } from '../lib/supabaseClient';
+import { Mail, Lock, User, LogIn, UserPlus } from 'lucide-react';
+
+export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void }) {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: username,
+            }
+          }
+        });
+        if (error) throw error;
+        // In a real app, you might want to wait for email confirmation
+        onAuthSuccess();
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        onAuthSuccess();
+      }
+    } catch (err: any) {
+      setError(err.message || "認証エラーが発生しました");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen text-slate-200 font-sans p-6">
+      <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+        <h2 className="text-3xl font-serif text-center mb-8 glow-text tracking-wider">
+          {isSignUp ? 'Join the Night' : 'Welcome Back'}
+        </h2>
+
+        {error && (
+          <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl mb-6 text-sm text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleAuth} className="space-y-5">
+          {isSignUp && (
+            <div>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300/50" />
+                <input
+                  type="text"
+                  placeholder="ユーザー名 (Username)"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300/50" />
+              <input
+                type="email"
+                placeholder="メールアドレス (Email)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300/50" />
+              <input
+                type="password"
+                placeholder="パスワード (Password)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/30 rounded-2xl py-3.5 font-medium transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+          >
+            {loading ? (
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : isSignUp ? (
+              <><UserPlus className="w-5 h-5" /> 新規登録</>
+            ) : (
+              <><LogIn className="w-5 h-5" /> ログイン</>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center text-sm text-indigo-200/60">
+          {isSignUp ? 'すでにアカウントをお持ちですか？' : 'アカウントをお持ちでないですか？'}
+          <button
+            type="button"
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="ml-2 text-indigo-400 hover:text-indigo-300 underline underline-offset-4 font-medium"
+          >
+            {isSignUp ? 'ログイン' : '新規登録'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
