@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 
 import { supabase } from '../lib/supabaseClient';
-import { Mail, Lock, User, LogIn, UserPlus } from 'lucide-react';
+import { Mail, Lock, User, LogIn, UserPlus, Apple, Computer } from 'lucide-react';
 
 export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -112,12 +112,36 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
             {loading ? (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : isSignUp ? (
-              <><UserPlus className="w-5 h-5" /> 新規登録</>
+              <><UserPlus className="w-5 h-5" /> メールで新規登録</>
             ) : (
-              <><LogIn className="w-5 h-5" /> ログイン</>
+              <><LogIn className="w-5 h-5" /> メールでログイン</>
             )}
           </button>
         </form>
+
+        <div className="my-6 flex items-center gap-4">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-xs text-indigo-200/50 font-medium">または</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={() => supabase.auth.signInWithOAuth({ provider: 'google' })}
+            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl py-3.5 font-medium transition-all flex items-center justify-center gap-3 text-sm text-white/90"
+          >
+            <Computer className="w-5 h-5 text-gray-300" />
+            Googleで続ける
+          </button>
+
+          <button
+            onClick={() => supabase.auth.signInWithOAuth({ provider: 'apple' })}
+            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl py-3.5 font-medium transition-all flex items-center justify-center gap-3 text-sm text-white/90"
+          >
+            <Apple className="w-5 h-5 text-gray-300" />
+            Appleで続ける
+          </button>
+        </div>
 
         <div className="mt-8 text-center text-sm text-indigo-200/60">
           {isSignUp ? 'すでにアカウントをお持ちですか？' : 'アカウントをお持ちでないですか？'}

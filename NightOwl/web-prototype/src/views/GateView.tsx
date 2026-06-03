@@ -44,6 +44,14 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
           夜の静寂が訪れるまで<br/>あと少し
         </p>
 
+        {/* Debug bypass button for testing */}
+        <button
+          onClick={onEnter}
+          className="absolute top-4 right-4 text-xs text-indigo-500/30 hover:text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full transition-colors z-50"
+        >
+          開発用: 強制入室
+        </button>
+
         <div className="flex items-center justify-center gap-4 text-5xl font-numbers font-light text-slate-200 w-full mb-8">
           <div className="flex flex-col items-center flex-1">
             <span className="tabular-nums tracking-wider text-shadow-sm">{String(timeLeft.hours).padStart(2, '0')}</span>
