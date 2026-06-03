@@ -11,15 +11,17 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessage(null);
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -29,8 +31,13 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
           }
         });
         if (error) throw error;
-        // In a real app, you might want to wait for email confirmation
-        onAuthSuccess();
+
+        // If auto-confirm is OFF in Supabase, session will be null
+        if (data.session === null) {
+            setMessage("確認メールを送信しました。メール内のリンクをクリックして登録を完了してください。");
+        } else {
+            onAuthSuccess();
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -56,6 +63,12 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
         {error && (
           <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl mb-6 text-sm text-center">
             {error}
+          </div>
+        )}
+
+        {message && (
+          <div className="bg-green-500/20 border border-green-500/50 text-green-200 px-4 py-3 rounded-xl mb-6 text-sm text-center">
+            {message}
           </div>
         )}
 
