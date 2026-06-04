@@ -44,14 +44,6 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
           夜の静寂が訪れるまで<br/>あと少し
         </p>
 
-        {/* Debug bypass button for testing */}
-        <button
-          onClick={onEnter}
-          className="absolute top-4 right-4 text-xs text-indigo-500/30 hover:text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full transition-colors z-50"
-        >
-          開発用: 強制入室
-        </button>
-
         <div className="flex items-center justify-center gap-4 text-5xl font-numbers font-light text-slate-200 w-full mb-8">
           <div className="flex flex-col items-center flex-1">
             <span className="tabular-nums tracking-wider text-shadow-sm">{String(timeLeft.hours).padStart(2, '0')}</span>
@@ -68,6 +60,14 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
             <span className="text-[10px] text-indigo-400/50 mt-2 font-sans tracking-widest uppercase">Secs</span>
           </div>
         </div>
+
+        {/* Debug bypass button for testing - Made prominent for the user */}
+        <button
+          onClick={onEnter}
+          className="mt-12 px-8 py-4 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 rounded-2xl text-indigo-200 font-bold tracking-widest transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] active:scale-95"
+        >
+          🔧 デバッグ用：強制的にアプリを開く
+        </button>
       </div>
     </div>
   );
