@@ -5,8 +5,8 @@ BEGIN
   INSERT INTO public.users (supabase_auth_id, username, display_name)
   VALUES (
     new.id,
-    new.raw_user_meta_data->>'username', -- Assume username is passed in metadata
-    new.raw_user_meta_data->>'username'
+    COALESCE(new.raw_user_meta_data->>'username', new.email, 'user_' || substr(new.id::text, 1, 8)),
+    COALESCE(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1), 'User')
   );
   RETURN new;
 END;

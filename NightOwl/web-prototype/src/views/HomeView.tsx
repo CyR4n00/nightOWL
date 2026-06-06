@@ -77,18 +77,22 @@ export function HomeView() {
 
   return (
     <div className="flex flex-col gap-4 pb-20">
-      {posts.map(post => (
-        <div key={post.id} className="glass-panel p-4 flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
-               {post.user.charAt(0).toUpperCase()}
+      {posts.map(post => {
+        const username = post.user || 'unknown';
+        const initial = username.charAt(0).toUpperCase() || '?';
+        return (
+          <div key={post.id} className="glass-panel p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+                 {initial}
+              </div>
+              <span className="font-semibold text-sm text-white/90">{username}</span>
+              <span className="text-sm font-numbers text-gray-500 ml-auto">{post.time}</span>
             </div>
-            <span className="font-semibold text-sm text-white/90">{post.user}</span>
-            <span className="text-sm font-numbers text-gray-500 ml-auto">{post.time}</span>
+            <p className="pl-11 text-white/80 text-sm leading-relaxed">{post.content}</p>
           </div>
-          <p className="pl-11 text-white/80 text-sm leading-relaxed">{post.content}</p>
-        </div>
-      ))}
+        );
+      })}
 
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-10">
         <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">

@@ -153,13 +153,9 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
       return;
     }
 
-    // Insert friend request (for prototype, we insert as 'accepted')
+    // Insert friend request securely using the rpc function
     const { error: insertError } = await supabase
-      .from('friends')
-      .insert([
-        { user_id: myData.id, friend_id: targetUser.id, status: 'accepted' },
-        { user_id: targetUser.id, friend_id: myData.id, status: 'accepted' } // Bi-directional for prototype
-      ]);
+      .rpc('add_friend', { target_user_id: targetUser.id });
 
     if (insertError) {
       console.error(insertError);
