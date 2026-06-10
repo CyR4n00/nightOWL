@@ -1,69 +1,79 @@
-import AgoraRTC from "agora-rtc-sdk-ng";
-import type { IAgoraRTCClient, IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
+import AgoraRTC, {
+  IAgoraRTCClient,
+  IMicrophoneAudioTrack,
+  UID
+} from 'agora-rtc-sdk-ng';
 
-export interface VoiceRoomServiceConfig {
-    appId: string;
-    token: string | null;
-    channel: string;
-    uid: string | number | null;
+// Use the user's provided Agora App ID as a fallback if the env var isn't set.
+const AGORA_APP_ID = import.meta.env.VITE_AGORA_APP_ID || '7ab68dbdc79048318306b351da4c19b8';
+
+class VoiceRoomService {
+  client: IAgoraRTCClient | null = null;
+  localAudioTrack: IMicrophoneAudioTrack | null = null;
+  isConnected: boolean = false;
+
+  // Note: Replace with your actual Agora App ID
+  appId = AGORA_APP_ID;
+
+  constructor() {
+    this.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+  }
+
+  async joinRoom(channelName: string, uid: UID | null = null): Promise<UID> {
+    if (!this.client) throw new Error("Agora client not initialized");
+
+    try {
+      // In a production app, you should generate a token from your server
+      // For this prototype, we'll use a null token which works if app certificate is disabled in Agora console
+      const token = null;
+
+      const joinedUid = await this.client.join(this.appId, channelName, token, uid);
+
+      // Create local audio track
+      this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+
+      // Publish local audio
+      await this.client.publish([this.localAudioTrack]);
+
+      this.isConnected = true;
+      return joinedUid;
+    } catch (error) {
+      console.error("Failed to join voice room:", error);
+      throw error;
+    }
+  }
+
+  async leaveRoom() {
+    if (!this.client) return;
+
+    try {
+      // Stop and close local track
+      if (this.localAudioTrack) {
+        this.localAudioTrack.stop();
+        this.localAudioTrack.close();
+        this.localAudioTrack = null;
+      }
+
+      // Leave channel
+      await this.client.leave();
+      this.isConnected = false;
+    } catch (error) {
+      console.error("Failed to leave voice room:", error);
+    }
+  }
+
+  muteMicrophone() {
+    if (this.localAudioTrack) {
+      this.localAudioTrack.setMuted(true);
+    }
+  }
+
+  unmuteMicrophone() {
+    if (this.localAudioTrack) {
+      this.localAudioTrack.setMuted(false);
+    }
+  }
 }
 
-export class VoiceRoomService {
-    private client: IAgoraRTCClient;
-    private localAudioTrack: IMicrophoneAudioTrack | null = null;
-
-    constructor() {
-        this.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    }
-
-    async joinRoom(config: VoiceRoomServiceConfig) {
-        console.log(`Joining Voice Room: ${config.channel}...`);
-
-        // Listeners setup
-        this.client.on("user-published", async (user, mediaType) => {
-            await this.client.subscribe(user, mediaType);
-            if (mediaType === "audio") {
-                user.audioTrack?.play();
-            }
-        });
-
-        this.client.on("user-unpublished", (user) => {
-            console.log("User unpublished", user);
-        });
-
-        await this.client.join(config.appId, config.channel, config.token, config.uid);
-        return true;
-    }
-
-    async publishAudio() {
-        console.log("Requesting microphone and publishing audio...");
-        try {
-            this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-            await this.client.publish([this.localAudioTrack]);
-            return true;
-        } catch (error) {
-            console.error("Failed to publish audio", error);
-            return false;
-        }
-    }
-
-    async toggleMute(mute: boolean) {
-        if (this.localAudioTrack) {
-            await this.localAudioTrack.setMuted(mute);
-            return true;
-        }
-        return false;
-    }
-
-    async leaveRoom() {
-        console.log("Leaving voice room...");
-        if (this.localAudioTrack) {
-            this.localAudioTrack.stop();
-            this.localAudioTrack.close();
-            this.localAudioTrack = null;
-        }
-        await this.client.leave();
-    }
-}
-
+// Export a singleton instance
 export const voiceRoomService = new VoiceRoomService();
