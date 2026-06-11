@@ -95,143 +95,165 @@ body {
 
 /* --- テーマ用背景クラス --- */
 
-/* デフォルト（星空/Night Sky） */
+/* --- テーマ用背景クラス --- */
+
+/* デフォルト（星空/Night Sky） - チカチカまたたく星空 */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); }
+}
+
 .theme-default {
   background: linear-gradient(180deg, #161730 0%, #2a2254 50%, #43336b 100%);
   background-attachment: fixed;
 }
-.theme-default::before {
+.theme-default::before,
+.theme-default::after {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  /* 星を大きく、光を強くする */
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 90px 40px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(4px 4px at 160px 120px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 240px 50px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 300px 90px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 350px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 100px 180px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(4px 4px at 220px 220px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 320px 180px, #ffffff, rgba(0,0,0,0));
+  top: 0; left: 0; width: 100%; height: 100%;
   background-repeat: repeat;
-  background-size: 400px 400px;
-  opacity: 0.8; /* 輝きを強く */
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); /* 星を光らせる */
+  background-size: 300px 300px;
   z-index: -1;
   pointer-events: none;
 }
-
-/* テーマ：オーロラ（Aurora） */
-@keyframes aurora-wave {
-  0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
-  33% { transform: scale(1.1) translate(5%, -5%); opacity: 0.7; }
-  66% { transform: scale(0.9) translate(-5%, 5%); opacity: 0.6; }
-  100% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+/* レイヤー1：ゆっくり瞬く星 */
+.theme-default::before {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
+    radial-gradient(2px 2px at 150px 80px, #ffffff, transparent),
+    radial-gradient(1.5px 1.5px at 250px 200px, #ffffff, transparent),
+    radial-gradient(2.5px 2.5px at 80px 280px, #ffffff, transparent);
+  animation: star-twinkle 6s ease-in-out infinite;
 }
+/* レイヤー2：早く瞬く星をずらして配置 */
+.theme-default::after {
+  background-image:
+    radial-gradient(1.5px 1.5px at 100px 50px, #ffffff, transparent),
+    radial-gradient(2px 2px at 200px 150px, #ffffff, transparent),
+    radial-gradient(1px 1px at 40px 220px, #ffffff, transparent),
+    radial-gradient(3px 3px at 280px 40px, #ffffff, transparent);
+  animation: star-twinkle 4s ease-in-out infinite 2s;
+}
+
+/* テーマ：オーロラ（Aurora） - 緑と紫が移り変わる線 */
+@keyframes aurora-flow {
+  0% { transform: translateY(10%) rotate(-5deg); opacity: 0; }
+  25% { opacity: 0.8; }
+  75% { opacity: 0.8; }
+  100% { transform: translateY(-10%) rotate(5deg); opacity: 0; }
+}
+@keyframes aurora-hue {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(60deg); }
+}
+
 .theme-aurora {
-  background: linear-gradient(135deg, #0b1c2c 0%, #1a3c40 50%, #2a615a 100%);
+  background: linear-gradient(135deg, #0b1c2c 0%, #122838 100%);
   background-attachment: fixed;
 }
-.theme-aurora::before {
+.theme-aurora::before,
+.theme-aurora::after {
   content: '';
   position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 70% 30%, rgba(120, 255, 214, 0.15) 0%, rgba(0,0,0,0) 50%),
-              radial-gradient(circle at 30% 70%, rgba(168, 255, 120, 0.1) 0%, rgba(0,0,0,0) 50%);
+  left: -20%; width: 140%; height: 150px;
+  background: linear-gradient(90deg, transparent, rgba(82, 255, 168, 0.4), rgba(189, 82, 255, 0.4), transparent);
+  filter: blur(40px);
   z-index: -1;
   pointer-events: none;
-  animation: aurora-wave 15s ease-in-out infinite alternate;
+  border-radius: 50%;
+}
+.theme-aurora::before {
+  top: 10%;
+  animation: aurora-flow 12s ease-in-out infinite alternate, aurora-hue 15s linear infinite alternate;
+}
+.theme-aurora::after {
+  top: 40%;
+  background: linear-gradient(90deg, transparent, rgba(189, 82, 255, 0.3), rgba(82, 255, 168, 0.3), transparent);
+  animation: aurora-flow 18s ease-in-out infinite alternate-reverse, aurora-hue 20s linear infinite alternate-reverse;
 }
 
-/* テーマ：深海（Deep Sea） */
+/* テーマ：深海（Deep Sea） - より暗く、泡の演出強化 */
 @keyframes bubble-rise {
-  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-  20% { opacity: 0.6; }
-  80% { opacity: 0.6; }
-  100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+  0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
+  20% { opacity: 0.5; }
+  50% { transform: translateY(40vh) translateX(15px) scale(0.8); }
+  80% { opacity: 0.5; }
+  100% { transform: translateY(-20vh) translateX(-15px) scale(1.2); opacity: 0; }
 }
 
 .theme-deepsea {
-  background: linear-gradient(180deg, #040814 0%, #0a1128 40%, #0d2146 100%);
+  /* 背景をもっと暗く */
+  background: linear-gradient(180deg, #020510 0%, #060b1c 60%, #0a1532 100%);
   background-attachment: fixed;
 }
 .theme-deepsea::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image:
-    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.4), rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 150px 150px, rgba(255,255,255,0.2), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 250px 300px, rgba(255,255,255,0.5), rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 300px 300px;
-  opacity: 0.3;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.6) 100%);
   z-index: -1;
   pointer-events: none;
 }
-/* Deep sea bubbles will be handled in JS mapping to .bubble elements */
 .bubble {
   position: fixed;
   bottom: -20px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1) 60%, transparent 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   z-index: -1;
   pointer-events: none;
   animation: bubble-rise infinite ease-in;
+  box-shadow: inset 2px 2px 5px rgba(255,255,255,0.2), 0 0 10px rgba(255,255,255,0.05);
 }
 
-/* テーマ：夕闇（Dusk） */
-@keyframes dusk-flow {
-  0% { background-position: 50% 0%; }
-  50% { background-position: 50% 100%; }
-  100% { background-position: 50% 0%; }
-}
+/* テーマ：夕闇（Dusk） - グラデーションをハッキリと */
 .theme-dusk {
-  background: linear-gradient(180deg, #2b1b3d, #47264a, #764559, #8c424a, #2b1b3d);
-  background-size: 100% 400%;
+  background: linear-gradient(180deg,
+    #1f1430 0%,
+    #4a2545 35%,
+    #8c3b4d 65%,
+    #c45d4b 85%,
+    #d1794b 100%);
   background-attachment: fixed;
-  animation: dusk-flow 20s ease infinite;
 }
 
-/* テーマ：銀河（Galaxy） */
-@keyframes twinkle {
-  0%, 100% { opacity: 0.4; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 12px rgba(255,255,255,1)); }
+/* テーマ：銀河（Galaxy） - 天の川の帯を描画 */
+@keyframes milkyway-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
 }
+
 .theme-galaxy {
-  background: radial-gradient(circle at center, #2e1a47 0%, #150b24 50%, #0a0512 100%);
+  background: linear-gradient(135deg, #0b071a 0%, #1a0b2e 50%, #0b071a 100%);
   background-attachment: fixed;
 }
 .theme-galaxy::before {
+  /* 無数の星の層 */
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   background-image:
-    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 90px 40px, #ffd1dc, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 240px 50px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(4px 4px at 300px 90px, #c4e0e5, rgba(0,0,0,0));
+    radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
+    radial-gradient(1.5px 1.5px at 90px 140px, #ffd1dc, transparent),
+    radial-gradient(1px 1px at 240px 50px, #ffffff, transparent),
+    radial-gradient(2px 2px at 300px 290px, #c4e0e5, transparent);
   background-repeat: repeat;
-  background-size: 200px 200px;
+  background-size: 150px 150px;
+  opacity: 0.6;
+  z-index: -2;
+}
+.theme-galaxy::after {
+  /* 天の川の帯 */
+  content: '';
+  position: fixed;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(ellipse at center, rgba(138, 43, 226, 0.15) 0%, rgba(75, 0, 130, 0.1) 40%, transparent 70%);
+  transform: rotate(-45deg);
+  filter: blur(30px);
   z-index: -1;
+  animation: milkyway-glow 10s ease-in-out infinite;
   pointer-events: none;
-  animation: twinkle 4s ease-in-out infinite;
 }
 
 

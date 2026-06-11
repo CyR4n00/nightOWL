@@ -1,0 +1,14 @@
+<<<<<<< SEARCH
+import AgoraRTC, {
+  IAgoraRTCClient,
+  IMicrophoneAudioTrack,
+  UID
+} from 'agora-rtc-sdk-ng';
+=======
+import AgoraRTC from 'agora-rtc-sdk-ng';
+import type {
+  IAgoraRTCClient,
+  IMicrophoneAudioTrack,
+  UID
+} from 'agora-rtc-sdk-ng';
+>>>>>>> REPLACE

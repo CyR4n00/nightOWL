@@ -1,4 +1,5 @@
-import AgoraRTC, {
+import AgoraRTC from 'agora-rtc-sdk-ng';
+import type {
   IAgoraRTCClient,
   IMicrophoneAudioTrack,
   UID
@@ -71,6 +72,20 @@ class VoiceRoomService {
   unmuteMicrophone() {
     if (this.localAudioTrack) {
       this.localAudioTrack.setMuted(false);
+    }
+  }
+
+  async toggleMute(muted: boolean): Promise<boolean> {
+    if (this.localAudioTrack) {
+      await this.localAudioTrack.setMuted(muted);
+      return true;
+    }
+    return false;
+  }
+
+  async publishAudio() {
+    if (this.client && this.localAudioTrack) {
+      await this.client.publish([this.localAudioTrack]);
     }
   }
 }

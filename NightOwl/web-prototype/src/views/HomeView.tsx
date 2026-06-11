@@ -59,19 +59,35 @@ export function HomeView() {
       .eq('supabase_auth_id', authUser.id)
       .single();
 
+    let userId = userData?.id;
+
     if (userError || !userData) {
-      console.error("Could not find public user profile", userError);
-      return;
+      console.warn("Could not find public user profile, attempting to create one...", userError);
+      // Attempt to create a profile if it doesn't exist (can happen if trigger failed)
+      const { data: newUser, error: createError } = await supabase
+        .from('users')
+        .insert([{
+           supabase_auth_id: authUser.id,
+           username: authUser.user_metadata?.username || authUser.email?.split('@')[0] || 'Unknown User'
+        }])
+        .select()
+        .single();
+
+      if (createError || !newUser) {
+         console.error("Failed to create user profile:", createError);
+         return;
+      }
+      userId = newUser.id;
     }
 
     const { error } = await supabase.from('posts').insert([
-      { user_id: userData.id, content: inputText }
+      { user_id: userId, content: inputText }
     ]);
 
     if (!error) {
       setInputText("");
     } else {
-      console.error(error);
+      console.error("Failed to post:", error);
     }
   };
 

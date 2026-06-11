@@ -54,39 +54,36 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="p-4 flex gap-2 border-b border-white/5">
+      <div className="p-4 pt-8 text-center border-b border-white/5 relative">
+        <h2 className="font-serif text-2xl glow-text">Friends</h2>
         <button
-          onClick={() => setActiveChatTab('friends')}
-          className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${activeChatTab === 'friends' ? 'bg-indigo-500/20 text-indigo-300' : 'text-gray-500 hover:bg-white/5'}`}
+          onClick={() => setShowAddFriend(true)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 rounded-full transition-colors"
         >
-          Friends
+          <Plus className="w-5 h-5" />
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 flex flex-col gap-2 pb-24">
-           {/* Add Friend Button */}
-           <button
-             onClick={() => setShowAddFriend(true)}
-             className="w-full glass-panel p-4 flex items-center justify-center gap-2 mb-2 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10 transition-colors"
-           >
-             <Plus className="w-5 h-5" />
-             <span className="font-semibold text-sm">フレンドを追加</span>
-           </button>
-
+        <div className="p-4 flex flex-col gap-3 pb-24">
            {friends.length === 0 && (
-             <div className="text-center text-gray-500 mt-10 text-sm">フレンドがいません</div>
+             <div className="text-center text-indigo-300/50 mt-20 text-sm flex flex-col items-center gap-4">
+               <User className="w-12 h-12 opacity-20" />
+               <p>まだフレンドがいません<br/>右上の＋ボタンから追加しましょう</p>
+             </div>
            )}
 
            {friends.map(friend => (
-            <div key={friend.id} onClick={() => setActiveFriend(friend)} className="glass-panel p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-colors">
+            <div key={friend.id} onClick={() => setActiveFriend(friend)} className="glass-panel p-4 flex items-center gap-4 cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-white/10" />
-                <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-night-navy ${friend.status === 'Online' ? 'bg-green-400' : 'bg-gray-500'}`} />
+                <div className="w-12 h-12 rounded-full bg-indigo-900/50 border border-white/10 flex items-center justify-center">
+                  <span className="text-lg font-bold text-indigo-200">{friend.name.charAt(0).toUpperCase()}</span>
+                </div>
+                <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-900 shadow-sm ${friend.status === 'Online' ? 'bg-green-400' : 'bg-gray-500'}`} />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-white/90">{friend.name}</h3>
-                <p className="text-xs text-gray-500">{friend.lastMsg}</p>
+                <h3 className="font-bold text-white/90 text-lg">{friend.name}</h3>
+                <p className="text-sm text-indigo-200/50 flex items-center gap-1 mt-0.5"><MessageSquare className="w-3 h-3" />タップしてチャットを開く</p>
               </div>
             </div>
            ))}

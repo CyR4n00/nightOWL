@@ -39,7 +39,9 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
     onActiveChange?.(true);
   };
 
-  const handleStartRoom = async (selectedBgm: 'none' | 'lofi' | 'rain' | 'fire', title: string) => {
+  const [initialDuration, setInitialDuration] = useState<number>(2);
+
+  const handleStartRoom = async (selectedBgm: 'none' | 'lofi' | 'rain' | 'fire', title: string, duration: number) => {
     const session = await supabase.auth.getSession();
     const authUser = session.data.session?.user;
     if (!authUser) return;
@@ -66,13 +68,14 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
       setBgm(selectedBgm);
       setIsHost(true);
       setActiveRoomId(newRoom.id);
+      setInitialDuration(duration);
       setShowSettings(false);
       onActiveChange?.(true);
     }
   };
 
   if (activeRoomId) {
-    return <VoiceRoomView onClose={handleCloseRoom} initialBgm={bgm} isHost={isHost} roomId={activeRoomId} />;
+    return <VoiceRoomView onClose={handleCloseRoom} initialBgm={bgm} isHost={isHost} roomId={activeRoomId} initialDurationHours={initialDuration} />;
   }
 
   if (showSettings) {
@@ -125,9 +128,10 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
   );
 }
 
-function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart: (bgm: 'none' | 'lofi' | 'rain' | 'fire', title: string) => void }) {
+function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart: (bgm: 'none' | 'lofi' | 'rain' | 'fire', title: string, duration: number) => void }) {
   const [bgm, setBgm] = useState<'none' | 'lofi' | 'rain' | 'fire'>('lofi');
   const [title, setTitle] = useState('');
+  const [duration, setDuration] = useState<number>(2); // Default 2 hours
 
   return (
     <div className="flex flex-col h-full absolute inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
@@ -172,8 +176,25 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
           </div>
         </div>
 
+        <div>
+          <h3 className="text-xs font-semibold text-indigo-300 mb-4 px-1 flex items-center gap-2">
+            <Clock className="w-4 h-4" /> 自動終了までの時間
+          </h3>
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min="1"
+              max="6"
+              value={duration}
+              onChange={e => setDuration(parseInt(e.target.value))}
+              className="flex-1 accent-indigo-500"
+            />
+            <span className="w-16 text-right font-bold text-white/90">{duration} 時間</span>
+          </div>
+        </div>
+
         <button
-          onClick={() => onStart(bgm, title)}
+          onClick={() => onStart(bgm, title, duration)}
           className="w-full p-4 rounded-xl bg-indigo-600 font-bold tracking-wider hover:bg-indigo-500 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.4)]"
         >
           配信を開始する
@@ -184,29 +205,58 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
 }
 
 
-function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire', isHost?: boolean, roomId: string }) {
+function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, initialDurationHours = 2 }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire', isHost?: boolean, roomId: string, initialDurationHours?: number }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
+  const [timeLeft, setTimeLeft] = useState<number>(60 * 60 * initialDurationHours);
+  const [isExtended, setIsExtended] = useState(false);
+  useEffect(() => {
+    let audio: HTMLAudioElement | null = null;
+    if (initialBgm !== 'none') {
+      // Create audio element with placeholder sounds
+      // In a real app, you'd host these MP3s. For prototype, we use free sounds
+      const bgmUrls = {
+        lofi: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3',
+        rain: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=heavy-rain-nature-sounds-8186.mp3',
+        fire: 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_651a4ddb65.mp3?filename=crackling-fireplace-nature-sounds-8012.mp3'
+      };
+
+      audio = new Audio(bgmUrls[initialBgm as keyof typeof bgmUrls]);
+      audio.loop = true;
+      audio.volume = 0.3; // Background volume
+      audio.play().catch(e => console.log("Autoplay blocked:", e));
+    }
+
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+      }
+    };
+  }, [initialBgm]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+           clearInterval(timer);
+           onClose();
+           return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [onClose]);
 
   useEffect(() => {
     let mounted = true;
 
     const setupRoom = async () => {
-      const appId = import.meta.env.VITE_AGORA_APP_ID;
-      if (!appId) {
-        console.error("Agora App ID is missing.");
-        setIsConnecting(false);
-        return;
-      }
+      // For prototyping, token is null. In prod, generate a token on your server.
+      const joined = await voiceRoomService.joinRoom(roomId, null);
 
-      const joined = await voiceRoomService.joinRoom({
-        appId: appId,
-        token: null, // For prototyping, token is null. In prod, generate a token on your server.
-        channel: roomId, // Use the DB room ID as the Agora channel name
-        uid: null
-      });
-
-      if (joined && mounted) {
+      if (joined !== undefined && mounted) {
         if (isHost) {
           await voiceRoomService.publishAudio();
         }
@@ -233,7 +283,13 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId }: 
   return (
     <div className="flex flex-col h-full bg-black/40 backdrop-blur-md pb-safe">
       <div className="p-6 flex flex-col h-full">
-         <h2 className="text-xl font-serif glow-text mb-8">Voice Room</h2>
+         <div className="flex items-center justify-between mb-8">
+           <h2 className="text-xl font-serif glow-text">Voice Room</h2>
+           <div className="bg-white/10 px-3 py-1.5 rounded-full border border-white/10 text-sm font-numbers flex items-center gap-2">
+             <Clock className="w-4 h-4 text-indigo-300" />
+             <span>{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
+           </div>
+         </div>
 
          <div className="flex-1 flex flex-col items-center justify-center">
             {isConnecting ? (
@@ -250,6 +306,18 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId }: 
             <p className="mt-8 text-sm text-gray-400">
                {isHost ? "ホストとして配信中" : "リスナーとして参加中"}
             </p>
+
+            {isHost && !isExtended && (
+              <button
+                onClick={() => {
+                  setTimeLeft(prev => prev + 3600); // Add 1 hour
+                  setIsExtended(true);
+                }}
+                className="mt-6 px-4 py-2 rounded-full border border-indigo-500/50 text-indigo-300 text-sm hover:bg-indigo-500/20 transition-colors"
+              >
+                + 1時間延長する
+              </button>
+            )}
          </div>
 
          <div className="flex gap-4 mt-auto">
