@@ -237,6 +237,13 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
 
   useEffect(() => {
     const timer = setInterval(() => {
+      // Check if it's past 6:00 AM (but only if we were actually running at night)
+      const now = new Date();
+      if (now.getHours() >= 6 && now.getHours() < 18) { // 6 AM to 6 PM
+         clearInterval(timer);
+         onClose();
+         return;
+      }
       setTimeLeft(prev => {
         if (prev <= 1) {
            clearInterval(timer);
@@ -310,12 +317,12 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
             {isHost && !isExtended && (
               <button
                 onClick={() => {
-                  setTimeLeft(prev => prev + 3600); // Add 1 hour
+                  setTimeLeft(prev => prev + 1800); // Add 30 mins
                   setIsExtended(true);
                 }}
                 className="mt-6 px-4 py-2 rounded-full border border-indigo-500/50 text-indigo-300 text-sm hover:bg-indigo-500/20 transition-colors"
               >
-                + 1時間延長する
+                + 30分延長する
               </button>
             )}
          </div>

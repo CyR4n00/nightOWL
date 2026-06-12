@@ -8,6 +8,8 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
   const [showPast, setShowPast] = useState(false);
   const [userIcon, setUserIcon] = useState<string | null>(null);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newUsername, setNewUsername] = useState(session?.user?.user_metadata?.username || '');
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -121,8 +123,39 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
             </div>
           )}
         </div>
-        <div>
-          <h2 className="font-bold text-xl">{session?.user?.user_metadata?.username || 'My Username'}</h2>
+        <div className="flex flex-col items-center">
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                className="bg-white/10 border border-indigo-500/50 rounded-lg px-3 py-1 text-white outline-none w-32"
+                autoFocus
+              />
+              <button
+                onClick={async () => {
+                  if(newUsername.trim()) {
+                    await supabase.auth.updateUser({ data: { username: newUsername } });
+                    // Also update public.users
+                    const authUser = (await supabase.auth.getSession()).data.session?.user;
+                    if(authUser) {
+                      await supabase.from('users').update({ username: newUsername }).eq('supabase_auth_id', authUser.id);
+                    }
+                  }
+                  setIsEditingName(false);
+                }}
+                className="text-xs bg-indigo-500 px-3 py-1.5 rounded-lg text-white"
+              >
+                保存
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingName(true)}>
+              <h2 className="font-bold text-xl">{session?.user?.user_metadata?.username || 'My Username'}</h2>
+              <Settings2 className="w-4 h-4 text-white/30 group-hover:text-white/80 transition-colors" />
+            </div>
+          )}
           <p className="text-xs text-indigo-300 mt-1 opacity-70 truncate max-w-[200px]">{session?.user?.email}</p>
           {isPremium ? (
              <span className="inline-block mt-2 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full text-xs font-semibold shadow-[0_0_15px_rgba(99,102,241,0.5)]">
@@ -140,7 +173,10 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
       </div>
 
       <button
-        onClick={() => supabase.auth.signOut()}
+        onClick={async () => {
+          await supabase.auth.signOut();
+          window.location.reload();
+        }}
         className="w-full mb-6 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl border border-red-500/20 transition-all font-medium"
       >
         ログアウト

@@ -99,8 +99,8 @@ body {
 
 /* デフォルト（星空/Night Sky） - チカチカまたたく星空 */
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); }
+  0%, 100% { opacity: 0; filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)); }
 }
 
 .theme-default {
@@ -138,10 +138,11 @@ body {
 
 /* テーマ：オーロラ（Aurora） - 緑と紫が移り変わる線 */
 @keyframes aurora-flow {
-  0% { transform: translateY(10%) rotate(-5deg); opacity: 0; }
-  25% { opacity: 0.8; }
-  75% { opacity: 0.8; }
-  100% { transform: translateY(-10%) rotate(5deg); opacity: 0; }
+  0% { transform: translateY(10%) rotate(-5deg) skewX(-10deg); opacity: 0; }
+  20% { opacity: 0.8; }
+  50% { transform: translateY(0%) rotate(0deg) skewX(10deg); opacity: 0.9; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-10%) rotate(5deg) skewX(-10deg); opacity: 0; }
 }
 @keyframes aurora-hue {
   0% { filter: hue-rotate(0deg); }
@@ -175,11 +176,11 @@ body {
 
 /* テーマ：深海（Deep Sea） - より暗く、泡の演出強化 */
 @keyframes bubble-rise {
-  0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
-  20% { opacity: 0.5; }
-  50% { transform: translateY(40vh) translateX(15px) scale(0.8); }
-  80% { opacity: 0.5; }
-  100% { transform: translateY(-20vh) translateX(-15px) scale(1.2); opacity: 0; }
+  0% { transform: translateY(110vh) translateX(0) scale(0.5); opacity: 0; }
+  10% { opacity: 0.8; }
+  50% { transform: translateY(40vh) translateX(25px) scale(0.9); opacity: 0.9; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(-20vh) translateX(-25px) scale(1.3); opacity: 0; }
 }
 
 .theme-deepsea {
@@ -198,13 +199,13 @@ body {
 .bubble {
   position: fixed;
   bottom: -20px;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1) 60%, transparent 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3) 60%, transparent 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   z-index: -1;
   pointer-events: none;
   animation: bubble-rise infinite ease-in;
-  box-shadow: inset 2px 2px 5px rgba(255,255,255,0.2), 0 0 10px rgba(255,255,255,0.05);
+  box-shadow: inset 4px 4px 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.2);
 }
 
 /* テーマ：夕闇（Dusk） - グラデーションをハッキリと */
@@ -219,9 +220,10 @@ body {
 }
 
 /* テーマ：銀河（Galaxy） - 天の川の帯を描画 */
-@keyframes milkyway-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+@keyframes galaxy-swirl {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.2); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); opacity: 0.5; }
 }
 
 .theme-galaxy {
@@ -244,16 +246,26 @@ body {
   z-index: -2;
 }
 .theme-galaxy::after {
-  /* 天の川の帯 */
+  /* 銀河の渦（Vortex） */
   content: '';
   position: fixed;
-  top: -50%; left: -50%; width: 200%; height: 200%;
-  background: radial-gradient(ellipse at center, rgba(138, 43, 226, 0.15) 0%, rgba(75, 0, 130, 0.1) 40%, transparent 70%);
-  transform: rotate(-45deg);
-  filter: blur(30px);
+  top: 50%; left: 50%;
+  width: 150vw; height: 150vw;
+  background: conic-gradient(from 0deg at 50% 50%,
+    rgba(138, 43, 226, 0.4) 0deg,
+    transparent 60deg,
+    rgba(75, 0, 130, 0.3) 120deg,
+    transparent 180deg,
+    rgba(138, 43, 226, 0.4) 240deg,
+    transparent 300deg,
+    rgba(75, 0, 130, 0.3) 360deg
+  );
+  filter: blur(60px);
   z-index: -1;
-  animation: milkyway-glow 10s ease-in-out infinite;
+  animation: galaxy-swirl 30s linear infinite;
   pointer-events: none;
+  border-radius: 50%;
+  transform-origin: center center;
 }
 
 
