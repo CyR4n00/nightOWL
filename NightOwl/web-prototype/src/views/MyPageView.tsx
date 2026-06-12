@@ -28,7 +28,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
     ];
 
     return (
-      <div className="flex flex-col h-full bg-black/40 backdrop-blur-md pb-safe">
+      <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
         <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe">
           <button onClick={() => setShowThemeSettings(false)} className="text-indigo-400 p-2 -ml-2">
             ← 戻る
@@ -66,7 +66,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
 
   if (showPast) {
     return (
-      <div className="flex flex-col h-full bg-black/40 backdrop-blur-md pb-safe">
+      <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
         <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe">
           <button onClick={() => setShowPast(false)} className="text-indigo-400 p-2 -ml-2">
             ← 戻る
@@ -99,7 +99,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
       <div className="glass-panel w-full p-6 flex flex-col items-center mb-8 relative">
         <div className="relative w-24 h-24 rounded-full mb-4 border-2 border-indigo-500/30 flex items-center justify-center">
           {isPremium && (
-            <div className="absolute inset-0 rounded-full animate-[aurora-wave_4s_ease-in-out_infinite] opacity-50 blur-sm mix-blend-screen"
+            <div className="fixed inset-0 rounded-full animate-[aurora-wave_4s_ease-in-out_infinite] opacity-50 blur-sm mix-blend-screen"
                  style={{
                    background: 'linear-gradient(45deg, #4f46e5, #ec4899, #8b5cf6, #3b82f6)',
                    backgroundSize: '200% 200%'

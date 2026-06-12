@@ -164,7 +164,7 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
   };
 
   return (
-    <div className="flex flex-col h-full absolute inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
+    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
       <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe bg-transparent">
         <button onClick={onClose} className="text-indigo-400 p-2 -ml-2">
           ← キャンセル

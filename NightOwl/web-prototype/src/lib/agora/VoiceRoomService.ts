@@ -4,6 +4,7 @@ import type {
   IMicrophoneAudioTrack,
   UID
 } from 'agora-rtc-sdk-ng';
+import { supabase } from '../supabaseClient';
 
 // Use the user's provided Agora App ID as a fallback if the env var isn't set.
 const AGORA_APP_ID = import.meta.env.VITE_AGORA_APP_ID || '7ab68dbdc79048318306b351da4c19b8';
@@ -24,9 +25,22 @@ class VoiceRoomService {
     if (!this.client) throw new Error("Agora client not initialized");
 
     try {
-      // In a production app, you should generate a token from your server
-      // For this prototype, we'll use a null token which works if app certificate is disabled in Agora console
-      const token = null;
+      // Call Supabase Edge Function to get token
+      let token = null;
+      try {
+        const { data, error } = await supabase.functions.invoke('agora-token', {
+          body: { channelName, uid: uid ? parseInt(uid.toString(), 10) : 0 }
+        });
+
+        if (error) {
+          console.warn("Failed to fetch token from Edge Function, falling back to null token (testing mode). Error:", error);
+        } else {
+          token = data?.token || null;
+          console.log("Successfully fetched Agora token");
+        }
+      } catch (err) {
+        console.warn("Error invoking agora-token edge function, falling back to null token.", err);
+      }
 
       const joinedUid = await this.client.join(this.appId, channelName, token, uid);
 

@@ -79,7 +79,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   };
 
   return (
-    <div className="flex flex-col h-full absolute inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
+    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
       <header className="p-4 flex items-center justify-between bg-transparent border-b border-white/10 z-10 pt-safe">
         <div className="flex items-center gap-3">
           <button onClick={onClose} className="text-indigo-400 p-2 -ml-2">

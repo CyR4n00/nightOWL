@@ -134,7 +134,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
   const [duration, setDuration] = useState<number>(2); // Default 2 hours
 
   return (
-    <div className="flex flex-col h-full absolute inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
+    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
       <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe">
         <button onClick={onClose} className="text-indigo-400 p-2 -ml-2">
           ← キャンセル
@@ -288,7 +288,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
   };
 
   return (
-    <div className="flex flex-col h-full bg-black/40 backdrop-blur-md pb-safe">
+    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
       <div className="p-6 flex flex-col h-full">
          <div className="flex items-center justify-between mb-8">
            <h2 className="text-xl font-serif glow-text">Voice Room</h2>
