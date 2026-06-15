@@ -71,6 +71,15 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
       setInitialDuration(duration);
       setShowSettings(false);
       onActiveChange?.(true);
+    } else {
+      // Fallback for prototype if insert fails
+      console.warn("Insert failed, using fallback room");
+      setBgm(selectedBgm);
+      setIsHost(true);
+      setActiveRoomId("local-room-" + Date.now());
+      setInitialDuration(duration);
+      setShowSettings(false);
+      onActiveChange?.(true);
     }
   };
 

@@ -1,0 +1,11 @@
+--- /app/NightOwl/web-prototype/src/views/HomeView.tsx
++++ /app/NightOwl/web-prototype/src/views/HomeView.tsx
+@@ -99,6 +99,8 @@
+        await fetchPosts();
+        setInputText("");
+     } else {
+        setInputText("");
++       // Wait a moment then fetch
++       setTimeout(fetchPosts, 500);
+     }
+   };

@@ -99,7 +99,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
       <div className="glass-panel w-full p-6 flex flex-col items-center mb-8 relative">
         <div className="relative w-24 h-24 rounded-full mb-4 flex items-center justify-center">
           {isPremium && (
-            <div className="absolute inset-0 rounded-full animate-[aurora-wave_4s_ease-in-out_infinite] opacity-50 blur-sm mix-blend-screen"
+            <div className="fixed inset-0 rounded-full animate-[aurora-wave_4s_ease-in-out_infinite] opacity-50 blur-sm mix-blend-screen"
                  style={{
                    background: 'linear-gradient(45deg, #4f46e5, #ec4899, #8b5cf6, #3b82f6)',
                    backgroundSize: '200% 200%'

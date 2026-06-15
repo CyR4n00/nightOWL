@@ -1,0 +1,21 @@
+--- /app/NightOwl/web-prototype/src/views/MyPageView.tsx
++++ /app/NightOwl/web-prototype/src/views/MyPageView.tsx
+@@ -95,8 +95,8 @@
+   return (
+     <div className="flex flex-col items-center justify-center min-h-[80vh] p-6 pb-24">
+       <div className="glass-panel w-full p-6 flex flex-col items-center mb-8 relative">
+-        <div className="relative w-24 h-24 rounded-full mb-4 border-2 border-indigo-500/30 flex items-center justify-center">
++        <div className="relative w-24 h-24 rounded-full mb-4 flex items-center justify-center">
+           {isPremium && (
+             <div className="fixed inset-0 rounded-full animate-[aurora-wave_4s_ease-in-out_infinite] opacity-50 blur-sm mix-blend-screen"
+                  style={{
+                    background: 'linear-gradient(45deg, #4f46e5, #ec4899, #8b5cf6, #3b82f6)',
+@@ -104,7 +104,7 @@
+                  }}
+             />
+           )}
+-          <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-800 relative z-10 z-10 flex items-center justify-center z-10">
++          <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-800 border-2 border-indigo-500/30 z-10 flex items-center justify-center">
+              {userIcon ? (
+                <img src={userIcon} alt="User Icon" className="w-full h-full object-cover" />
+              ) : (

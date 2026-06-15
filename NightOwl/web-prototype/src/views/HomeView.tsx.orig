@@ -99,8 +99,6 @@ export function HomeView() {
        setInputText("");
     } else {
        setInputText("");
-       // Wait a moment then fetch
-       setTimeout(fetchPosts, 500);
     }
   };
 
