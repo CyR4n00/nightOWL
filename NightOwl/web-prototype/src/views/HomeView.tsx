@@ -129,10 +129,17 @@ export function HomeView() {
             type="text"
             value={inputText}
             onChange={e => setInputText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) handlePost(); }}
             placeholder="夜の独り言..."
+            aria-label="投稿内容"
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
           />
-          <button onClick={handlePost} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors">
+          <button
+            onClick={handlePost}
+            disabled={!inputText.trim()}
+            aria-label="投稿する"
+            className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Send className="w-4 h-4" />
           </button>
         </div>
