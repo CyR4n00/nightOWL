@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Home, MessageSquare, User, Headphones } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 import AuthView from './components/AuthView';
@@ -42,13 +42,16 @@ export default function App() {
     document.body.className = `theme-${theme}`;
   }, [theme]);
 
-  const bubbles = ['deepsea', 'aurora', 'galaxy'].includes(theme) ? Array.from({ length: 15 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: `${Math.random() * 20 + 10}px`,
-    delay: `${Math.random() * 5}s`,
-    duration: `${Math.random() * 10 + 5}s`
-  })) : [];
+  // ⚡ Bolt: Memoize bubbles array to prevent random recalculation and UI jumps on every re-render
+  const bubbles = useMemo(() => {
+    return ['deepsea', 'aurora', 'galaxy'].includes(theme) ? Array.from({ length: 15 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: `${Math.random() * 20 + 10}px`,
+      delay: `${Math.random() * 5}s`,
+      duration: `${Math.random() * 10 + 5}s`
+    })) : [];
+  }, [theme]);
 
   return (
     <>
