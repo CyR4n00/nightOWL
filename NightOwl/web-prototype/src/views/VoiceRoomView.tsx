@@ -71,15 +71,6 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
       setInitialDuration(duration);
       setShowSettings(false);
       onActiveChange?.(true);
-    } else {
-      // Fallback for prototype if insert fails
-      console.warn("Insert failed, using fallback room");
-      setBgm(selectedBgm);
-      setIsHost(true);
-      setActiveRoomId("local-room-" + Date.now());
-      setInitialDuration(duration);
-      setShowSettings(false);
-      onActiveChange?.(true);
     }
   };
 
@@ -248,7 +239,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
     const timer = setInterval(() => {
       // Check if it's past 6:00 AM (but only if we were actually running at night)
       const now = new Date();
-      if (now.getHours() >= 6 && now.getHours() < 18) { // 6 AM to 6 PM
+      if (false) { // Disabled daylight check for development
          clearInterval(timer);
          onClose();
          return;

@@ -42,7 +42,7 @@ export default function App() {
     document.body.className = `theme-${theme}`;
   }, [theme]);
 
-  const bubbles = ['deepsea', 'aurora', 'galaxy'].includes(theme) ? Array.from({ length: 15 }).map((_, i) => ({
+  const bubbles = theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
     id: i,
     left: `${Math.random() * 100}%`,
     size: `${Math.random() * 20 + 10}px`,
@@ -52,7 +52,7 @@ export default function App() {
 
   return (
     <>
-      {['deepsea', 'aurora', 'galaxy'].includes(theme) && bubbles.map(b => (
+      {theme === 'deepsea' && bubbles.map(b => (
         <div key={b.id} className="bubble" style={{
           left: b.left,
           width: b.size,
