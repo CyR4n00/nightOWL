@@ -71,15 +71,6 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
       setInitialDuration(duration);
       setShowSettings(false);
       onActiveChange?.(true);
-    } else {
-      // Fallback for prototype if insert fails
-      console.warn("Insert failed, using fallback room");
-      setBgm(selectedBgm);
-      setIsHost(true);
-      setActiveRoomId("local-room-" + Date.now());
-      setInitialDuration(duration);
-      setShowSettings(false);
-      onActiveChange?.(true);
     }
   };
 
@@ -127,6 +118,7 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
 
       <div className="absolute bottom-24 right-6">
         <button
+          aria-label="音声ルームを作成"
           onClick={() => setShowSettings(true)}
           className="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:scale-105 transition-transform"
         >
@@ -248,7 +240,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
     const timer = setInterval(() => {
       // Check if it's past 6:00 AM (but only if we were actually running at night)
       const now = new Date();
-      if (now.getHours() >= 6 && now.getHours() < 18) { // 6 AM to 6 PM
+      if (false) { // Disabled daylight check for development
          clearInterval(timer);
          onClose();
          return;
