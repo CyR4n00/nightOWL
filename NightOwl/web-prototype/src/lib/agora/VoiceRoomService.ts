@@ -6,8 +6,10 @@ import type {
 } from 'agora-rtc-sdk-ng';
 import { supabase } from '../supabaseClient';
 
-// Use the user's provided Agora App ID as a fallback if the env var isn't set.
-const AGORA_APP_ID = import.meta.env.VITE_AGORA_APP_ID || '7ab68dbdc79048318306b351da4c19b8';
+const AGORA_APP_ID = import.meta.env.VITE_AGORA_APP_ID;
+if (!AGORA_APP_ID) {
+  console.warn('VITE_AGORA_APP_ID is not defined. Voice room functionality will not work.');
+}
 
 class VoiceRoomService {
   client: IAgoraRTCClient | null = null;
