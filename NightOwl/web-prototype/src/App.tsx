@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, MessageSquare, User, Headphones } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 import AuthView from './components/AuthView';
@@ -42,18 +42,13 @@ export default function App() {
     document.body.className = `theme-${theme}`;
   }, [theme]);
 
-  // Performance Optimization: Wrap randomized static visual element generation in `useMemo`
-  // This prevents severe UI thrashing/reflows by recalculating random positions and sizes
-  // ONLY when the `theme` explicitly changes, rather than on every state re-render.
-  const bubbles = useMemo(() => {
-    return theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      size: `${Math.random() * 20 + 10}px`,
-      delay: `${Math.random() * 5}s`,
-      duration: `${Math.random() * 10 + 5}s`
-    })) : [];
-  }, [theme]);
+  const bubbles = theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    size: `${Math.random() * 20 + 10}px`,
+    delay: `${Math.random() * 5}s`,
+    duration: `${Math.random() * 10 + 5}s`
+  })) : [];
 
   return (
     <>

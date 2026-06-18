@@ -1,3 +1,0 @@
-## 2024-06-17 - Unmemoized `Math.random` in Render Loop
-**Learning:** Generating randomized values (e.g., using `Math.random()`) for static or visual elements (like CSS position or size) within the main render loop of React components causes severe UI thrashing across state re-renders (e.g., auth session changes). This leads to unpredictable and frequent DOM reflows and visually jarring re-randomizations.
-**Action:** Always wrap the generation logic in a `useMemo` hook with an appropriate dependency array so that the randomized static elements are calculated exactly once (or as needed) and preserve their values across unrelated state changes.
