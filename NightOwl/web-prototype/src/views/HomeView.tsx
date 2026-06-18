@@ -93,7 +93,8 @@ export function HomeView() {
 
     const error = res.error;
     if (error) {
-       console.log("Final insert error details:", JSON.stringify(error));
+       // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+       console.error("Failed to insert post.");
        // fallback: just push locally if RLS blocks us in this prototype to simulate it works
        const newPost = {
           id: Date.now(),
