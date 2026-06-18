@@ -47,7 +47,9 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
         onAuthSuccess();
       }
     } catch (err: any) {
-      setError(err.message || "認証エラーが発生しました");
+      // 🛡️ Sentinel: Do not expose detailed authentication error messages to prevent username enumeration or leaking internal details.
+      console.error("Authentication operation failed.");
+      setError("認証に失敗しました。入力内容をご確認ください。");
     } finally {
       setLoading(false);
     }
