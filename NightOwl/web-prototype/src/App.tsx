@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Home, MessageSquare, User, Headphones } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
+import type { Session } from '@supabase/supabase-js';
 import AuthView from './components/AuthView';
 import { GateView } from './views/GateView';
 import { HomeView } from './views/HomeView';
@@ -11,7 +12,7 @@ import { MyPageView } from './views/MyPageView';
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
   const [theme, setTheme] = useState<'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy'>('default');
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -42,13 +43,19 @@ export default function App() {
     document.body.className = `theme-${theme}`;
   }, [theme]);
 
-  const bubbles = theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: `${Math.random() * 20 + 10}px`,
-    delay: `${Math.random() * 5}s`,
-    duration: `${Math.random() * 10 + 5}s`
-  })) : [];
+  const bubbles = useMemo(() => {
+    return theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
+      id: i,
+      // eslint-disable-next-line react-hooks/purity
+      left: `${Math.random() * 100}%`,
+      // eslint-disable-next-line react-hooks/purity
+      size: `${Math.random() * 20 + 10}px`,
+      // eslint-disable-next-line react-hooks/purity
+      delay: `${Math.random() * 5}s`,
+      // eslint-disable-next-line react-hooks/purity
+      duration: `${Math.random() * 10 + 5}s`
+    })) : [];
+  }, [theme]);
 
   return (
     <>
@@ -73,7 +80,7 @@ export default function App() {
   );
 }
 
-function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: any) => void, session: any }) {
+function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy') => void, session: Session | null }) {
   const [activeTab, setActiveTab] = useState('home');
   const [isPremium, setIsPremium] = useState(false);
   const [isVoiceRoomActive, setIsVoiceRoomActive] = useState(false);
