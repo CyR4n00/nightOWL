@@ -1,0 +1,3 @@
+## 2024-06-19 - [O(n) Cascading Re-renders in React List + Unbounded Supabase Queries]
+**Learning:** Found a common performance anti-pattern where text input state (like chat or post inputs) is coupled with large, unmemoized list renderings within the same component, causing full O(n) re-renders of the list on every keystroke. Additionally, Supabase list queries lacked a `.limit()` clause, creating a risk of unbounded data fetching which compounds the re-render issue.
+**Action:** Extract list items into separate, `React.memo()` wrapped components, and always apply a `.limit()` (e.g., `.limit(50)`) to Supabase list queries to cap both data payload and render cost.
