@@ -155,7 +155,7 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
       .rpc('add_friend', { target_user_id: targetUser.id });
 
     if (insertError) {
-      console.error(insertError);
+      console.error("Failed to add friend due to a server error.");
       alert("フレンド追加に失敗しました。既にフレンドかもしれません。");
     } else {
       alert(`${searchId} をフレンドに追加しました！`);

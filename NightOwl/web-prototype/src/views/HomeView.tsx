@@ -25,7 +25,7 @@ export function HomeView() {
         time: new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       })));
     } else {
-      console.error(error);
+      console.error("Failed to fetch posts from database.");
     }
   };
 
@@ -62,7 +62,7 @@ export function HomeView() {
     let userId = userData?.id;
 
     if (userError || !userData) {
-      console.warn("Could not find public user profile, attempting to create one...", userError);
+      console.warn("Could not find public user profile, attempting to create one...");
       // Attempt to create a profile if it doesn't exist (can happen if trigger failed)
       const { data: newUser, error: createError } = await supabase
         .from('users')
@@ -74,7 +74,7 @@ export function HomeView() {
         .single();
 
       if (createError) {
-         console.error("Failed to create user profile:", createError);
+         console.error("Failed to create user profile due to a database error.");
       } else if (newUser) {
          userId = newUser.id;
       }

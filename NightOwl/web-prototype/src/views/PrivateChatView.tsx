@@ -74,7 +74,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     if (!error) {
       setNewMsg("");
     } else {
-      console.error(error);
+      console.error("Failed to send message due to a database error.");
     }
   };
 
