@@ -113,7 +113,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
                <User className="w-10 h-10" />
              )}
           </div>
-          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
+          <label aria-label="アイコンを変更" className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
              <Camera className="w-4 h-4" />
              <input type="file" accept="image/*" className="hidden" onChange={handleIconChange} />
           </label>
