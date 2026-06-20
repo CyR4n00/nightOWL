@@ -1,0 +1,3 @@
+## 2023-10-27 - [Add ARIA Labels to Icon-Only Buttons]
+**Learning:** Found multiple icon-only interactive elements across the application (e.g., Send buttons, Add Friend, Copy Link, Create Room, Change Icon) that were missing accessible names. This causes screen readers to announce "button" or just the file name of the icon instead of its purpose, which creates a poor accessibility experience.
+**Action:** Always add descriptive `aria-label` attributes (in Japanese, as expected by the users of this application) to any `button` or interactive element (like `label` acting as an upload trigger) that contains only an icon and no visible text.
