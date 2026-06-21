@@ -136,6 +136,7 @@ export function HomeView() {
             onChange={e => setInputText(e.target.value)}
             placeholder="夜の独り言..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
+            maxLength={500}
           />
           <button onClick={handlePost} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors">
             <Send className="w-4 h-4" />

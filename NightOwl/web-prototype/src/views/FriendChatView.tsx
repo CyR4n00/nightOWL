@@ -192,6 +192,7 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
               value={searchId}
               onChange={e => setSearchId(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-indigo-300/30 outline-none focus:border-indigo-500/50"
+              maxLength={30}
             />
           </div>
           <button
