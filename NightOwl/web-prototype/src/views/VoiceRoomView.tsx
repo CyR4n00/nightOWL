@@ -19,7 +19,8 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
       .from('voice_rooms')
       .select('*, users!host_id (username)')
       .eq('is_active', true)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(50); // ⚡ Bolt: Added .limit() to prevent unbounded data fetching
     if (data) setRooms(data);
   };
 
