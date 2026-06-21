@@ -12,7 +12,8 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
       .from('direct_messages')
       .select('*')
       .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .limit(50); // ⚡ Bolt: Added .limit() to prevent unbounded data fetching
 
     if (data) {
       setMessages(data.map(msg => ({
