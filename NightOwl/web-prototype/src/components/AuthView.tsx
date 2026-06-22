@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 
 import { supabase } from '../lib/supabaseClient';
@@ -21,6 +21,11 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
 
     try {
       if (isSignUp) {
+        if (password.length < 8) {
+          setError("パスワードは8文字以上である必要があります。");
+          setLoading(false);
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -46,7 +51,7 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
         if (error) throw error;
         onAuthSuccess();
       }
-    } catch (err: any) {
+    } catch {
       // 🛡️ Sentinel: Do not expose detailed authentication error messages to prevent username enumeration or leaking internal details.
       console.error("Authentication operation failed.");
       setError("認証に失敗しました。入力内容をご確認ください。");
