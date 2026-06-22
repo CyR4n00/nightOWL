@@ -118,6 +118,7 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
 
       <div className="absolute bottom-24 right-6">
         <button
+          aria-label="ルームを作成"
           onClick={() => setShowSettings(true)}
           className="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:scale-105 transition-transform"
         >
