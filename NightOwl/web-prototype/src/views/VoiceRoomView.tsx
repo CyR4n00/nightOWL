@@ -83,15 +83,21 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 pt-8 text-center border-b border-white/5">
-        <h2 className="font-serif text-2xl glow-text">Voice Rooms</h2>
-        <p className="text-xs text-indigo-300/60 mt-2">夜の語り場</p>
+    <div className="flex flex-col h-full theme-default relative pb-safe">
+      <div className="p-4 pt-12 text-center relative z-10">
+        <div className="absolute top-4 left-0 w-full text-center">
+            <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">NIGHTOWL</span>
+        </div>
+        <h2 className="font-stencil text-3xl text-white tracking-[0.1em] mt-6 text-shadow-sm">VOICE ROOM</h2>
+        <p className="text-xs text-white/80 mt-2 font-light tracking-[0.1em]">深夜の放送局</p>
+        <div className="w-full h-[1px] bg-white/5 mt-4"></div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-24">
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-24 relative z-10">
         {rooms.length === 0 && (
-          <div className="text-center text-gray-500 mt-10 text-sm">開催中のルームはありません</div>
+          <div className="absolute inset-0 flex items-center justify-center text-white/50 text-sm tracking-wider -mt-20">
+            開催中のルームはありません
+          </div>
         )}
 
         {rooms.map(room => (
@@ -116,12 +122,19 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
         ))}
       </div>
 
-      <div className="absolute bottom-24 right-6">
+      {/* City skyline silhouette */}
+      <div className="absolute bottom-16 left-0 w-full h-48 opacity-40 pointer-events-none z-0" style={{
+         backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1440 320\'><path fill=\'%230f172a\' fill-opacity=\'1\' d=\'M0,256L48,245.3C96,235,192,213,288,218.7C384,224,480,256,576,261.3C672,267,768,245,864,213.3C960,181,1056,139,1152,144C1248,149,1344,203,1392,229.3L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z\'></path><path fill=\'%231e293b\' fill-opacity=\'1\' d=\'M0,192L60,208C120,224,240,256,360,240C480,224,600,160,720,138.7C840,117,960,139,1080,149.3C1200,160,1320,160,1380,160L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z\'></path></svg>")',
+         backgroundSize: 'cover',
+         backgroundPosition: 'bottom'
+      }}></div>
+
+      <div className="absolute bottom-24 right-6 z-20">
         <button
           onClick={() => setShowSettings(true)}
-          className="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:scale-105 transition-transform"
+          className="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.8)] hover:scale-105 transition-transform"
         >
-          <Plus className="w-6 h-6 text-white" />
+          <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
         </button>
       </div>
     </div>
@@ -288,13 +301,16 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
   };
 
   return (
-    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
+    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe theme-default">
       <div className="p-6 flex flex-col h-full">
-         <div className="flex items-center justify-between mb-8">
-           <h2 className="text-xl font-serif glow-text">Voice Room</h2>
-           <div className="bg-white/10 px-3 py-1.5 rounded-full border border-white/10 text-sm font-numbers flex items-center gap-2">
-             <Clock className="w-4 h-4 text-indigo-300" />
-             <span>{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
+         <div className="flex flex-col items-center justify-center mb-8 relative pt-8">
+           <div className="absolute top-0 w-full text-center">
+               <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">NIGHTOWL</span>
+           </div>
+           <h2 className="text-3xl font-stencil text-white tracking-[0.1em] mt-4 text-shadow-sm">VOICE ROOM</h2>
+           <div className="bg-white/10 px-4 py-2 rounded-full border border-white/20 text-sm font-stencil tracking-widest flex items-center gap-2 mt-4 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+             <Clock className="w-4 h-4 text-white/80" />
+             <span className="text-white/90">{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
            </div>
          </div>
 

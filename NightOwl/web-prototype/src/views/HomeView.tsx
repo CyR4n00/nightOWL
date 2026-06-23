@@ -91,7 +91,7 @@ export function HomeView() {
        res = await supabase.from('posts').insert([{ user_id: authUser.id, content: inputText }]);
     }
 
-    let error = res.error;
+    const error = res.error;
     if (error) {
        // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
        console.error("Failed to insert post.");
