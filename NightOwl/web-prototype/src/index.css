@@ -61,6 +61,11 @@
     font-family: 'Cormorant Garamond', serif;
   }
 
+  /* NIGHTOWL や VOICE ROOM などのステンシル風フォント */
+  .font-stencil {
+    font-family: 'Major Mono Display', monospace;
+  }
+
   /* プレミアムユーザー用の光るアニメーションエフェクト */
   @keyframes aurora-glow {
     0% { box-shadow: 0 0 10px rgba(129, 140, 248, 0.5), 0 0 20px rgba(129, 140, 248, 0.3) inset; border-color: rgba(129, 140, 248, 0.8); }
