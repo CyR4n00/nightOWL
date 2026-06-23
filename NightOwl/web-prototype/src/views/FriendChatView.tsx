@@ -57,6 +57,7 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
       <div className="p-4 pt-8 text-center border-b border-white/5 relative">
         <h2 className="font-serif text-2xl glow-text">Friends</h2>
         <button
+          aria-label="フレンドを追加"
           onClick={() => setShowAddFriend(true)}
           className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 rounded-full transition-colors"
         >
@@ -221,6 +222,7 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
               nightowl.app/invite/{myUsername}
             </span>
             <button
+              aria-label="招待リンクをコピー"
               onClick={handleCopy}
               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-indigo-300"
             >

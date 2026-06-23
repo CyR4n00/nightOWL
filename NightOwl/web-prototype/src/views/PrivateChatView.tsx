@@ -121,7 +121,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
             placeholder="メッセージを入力..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
           />
-          <button onClick={handleSend} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors">
+          <button onClick={handleSend} aria-label="送信" disabled={!newMsg.trim()} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <Send className="w-4 h-4" />
           </button>
         </div>
