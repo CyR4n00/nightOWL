@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Send, User } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -12,10 +12,11 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
       .from('direct_messages')
       .select('*')
       .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false })
+      .limit(50);
 
     if (data) {
-      setMessages(data.map(msg => ({
+      setMessages(data.reverse().map(msg => ({
         id: msg.id,
         isMe: msg.sender_id === userId,
         text: msg.content,
@@ -102,12 +103,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
         {messages.map(msg => (
-          <div key={msg.id} className={`flex flex-col gap-1 max-w-[80%] ${msg.isMe ? 'self-end items-end' : 'self-start items-start'}`}>
-            <div className={`p-3 rounded-2xl ${msg.isMe ? 'bg-indigo-600/80 text-white rounded-tr-sm' : 'glass-panel rounded-tl-sm text-white/90'}`}>
-              <p className="text-sm leading-relaxed">{msg.text}</p>
-            </div>
-            <span className="text-[10px] font-numbers text-gray-500 px-1">{msg.time}</span>
-          </div>
+          <MessageItem key={msg.id} msg={msg} />
         ))}
       </div>
 
@@ -116,11 +112,12 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
           <input
             type="text"
             value={newMsg}
+            maxLength={1000}
             onChange={e => setNewMsg(e.target.value)}
             placeholder="メッセージを入力..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
           />
-          <button onClick={handleSend} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors">
+          <button onClick={handleSend} aria-label="送信" disabled={!newMsg.trim()} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <Send className="w-4 h-4" />
           </button>
         </div>
@@ -128,3 +125,12 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     </div>
   );
 }
+
+const MessageItem = memo(({ msg }: { msg: any }) => (
+  <div className={`flex flex-col gap-1 max-w-[80%] ${msg.isMe ? 'self-end items-end' : 'self-start items-start'}`}>
+    <div className={`p-3 rounded-2xl ${msg.isMe ? 'bg-indigo-600/80 text-white rounded-tr-sm' : 'glass-panel rounded-tl-sm text-white/90'}`}>
+      <p className="text-sm leading-relaxed">{msg.text}</p>
+    </div>
+    <span className="text-[10px] font-numbers text-gray-500 px-1">{msg.time}</span>
+  </div>
+));

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 
 
 import { Send } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PostItem = React.memo(({ post }: { post: any }) => {
+const PostItem = memo(({ post }: { post: any }) => {
   const username = post.user || 'unknown';
   const initial = username.charAt(0).toUpperCase() || '?';
   return (
@@ -57,7 +57,7 @@ export function HomeView() {
     const subscription = supabase
       .channel('public:posts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-
+         // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchPosts();
       })
       .subscribe();
@@ -65,7 +65,7 @@ export function HomeView() {
     return () => {
       supabase.removeChannel(subscription);
     };
-
+   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePost = async () => {
@@ -143,11 +143,12 @@ export function HomeView() {
           <input
             type="text"
             value={inputText}
+            maxLength={500}
             onChange={e => setInputText(e.target.value)}
             placeholder="夜の独り言..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
           />
-          <button onClick={handlePost} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors">
+          <button onClick={handlePost} aria-label="送信" disabled={!inputText.trim()} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <Send className="w-4 h-4" />
           </button>
         </div>
