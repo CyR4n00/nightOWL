@@ -20,6 +20,12 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
     setMessage(null);
 
     try {
+      if (isSignUp && password.length < 8) {
+        setError("パスワードは8文字以上で入力してください。");
+        setLoading(false);
+        return;
+      }
+
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -83,6 +89,7 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
                   type="text"
                   placeholder="ユーザー名 (Username)"
                   value={username}
+                  maxLength={20}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                   required
@@ -98,6 +105,7 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
                 type="email"
                 placeholder="メールアドレス (Email)"
                 value={email}
+                maxLength={255}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                 required
@@ -112,6 +120,7 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
                 type="password"
                 placeholder="パスワード (Password)"
                 value={password}
+                maxLength={128}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                 required

@@ -116,6 +116,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
           <input
             type="text"
             value={newMsg}
+            maxLength={1000}
             onChange={e => setNewMsg(e.target.value)}
             placeholder="メッセージを入力..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
