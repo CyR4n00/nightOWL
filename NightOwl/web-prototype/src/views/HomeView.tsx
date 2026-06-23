@@ -133,6 +133,7 @@ export function HomeView() {
           <input
             type="text"
             value={inputText}
+            maxLength={500}
             onChange={e => setInputText(e.target.value)}
             placeholder="夜の独り言..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"

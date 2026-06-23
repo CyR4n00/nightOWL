@@ -146,7 +146,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
         <div>
            <label className="text-xs text-indigo-300 font-semibold mb-2 block">ルーム名</label>
-           <input type="text" placeholder="深夜の読書会..." value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-indigo-500/50" />
+           <input type="text" placeholder="深夜の読書会..." value={title} maxLength={50} onChange={e => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-indigo-500/50" />
         </div>
 
         <div>
