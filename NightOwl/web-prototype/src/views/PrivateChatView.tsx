@@ -4,11 +4,10 @@ import { supabase } from '../lib/supabaseClient';
 
 export function PrivateChatView({ friend, onClose }: { friend: { id: string, name: string, status: string }, onClose: () => void }) {
   const [messages, setMessages] = useState<any[]>([]);
-  const [newMsg, setNewMsg] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('direct_messages')
       .select('*')
       .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
@@ -65,18 +64,20 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     };
   }, [friend.id]);
 
-  const handleSend = async () => {
-    if (!newMsg.trim() || !currentUserId) return;
+  const handleSend = async (textToSend: string): Promise<boolean> => {
+    if (!textToSend.trim() || !currentUserId) return false;
 
     const { error } = await supabase.from('direct_messages').insert([
-      { sender_id: currentUserId, receiver_id: friend.id, content: newMsg }
+      { sender_id: currentUserId, receiver_id: friend.id, content: textToSend }
     ]);
 
     if (!error) {
-      setNewMsg("");
+      return true;
     } else {
       console.error(error);
+      return false;
     }
+    return false;
   };
 
   return (
@@ -107,21 +108,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         ))}
       </div>
 
-      <div className="p-4 bg-transparent border-t border-white/5">
-        <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">
-          <input
-            type="text"
-            value={newMsg}
-            maxLength={1000}
-            onChange={e => setNewMsg(e.target.value)}
-            placeholder="メッセージを入力..."
-            className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
-          />
-          <button onClick={handleSend} aria-label="送信" disabled={!newMsg.trim()} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <Send className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      <PrivateChatInput onSend={handleSend} />
     </div>
   );
 }
@@ -134,3 +121,53 @@ const MessageItem = memo(({ msg }: { msg: any }) => (
     <span className="text-[10px] font-numbers text-gray-500 px-1">{msg.time}</span>
   </div>
 ));
+
+
+// ⚡ Bolt Optimization: Extracted PrivateChatInput to prevent the parent message list
+// from re-rendering on every keystroke, ensuring isolated and efficient updates.
+const PrivateChatInput = memo(({ onSend }: { onSend: (text: string) => Promise<boolean> }) => {
+  const [newMsg, setNewMsg] = useState("");
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      if (newMsg.trim()) {
+        const success = await onSend(newMsg);
+        if (success) {
+          setNewMsg("");
+        }
+      }
+    }
+    return false;
+  };
+
+  return (
+    <div className="p-4 bg-transparent border-t border-white/5">
+      <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">
+        <input
+          type="text"
+          value={newMsg}
+          maxLength={1000}
+          onChange={e => setNewMsg(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="メッセージを入力..."
+          className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
+        />
+        <button
+          onClick={async () => {
+            if (newMsg.trim()) {
+              const success = await onSend(newMsg);
+              if (success) {
+                setNewMsg("");
+              }
+            }
+          }}
+          aria-label="送信"
+          disabled={!newMsg.trim()}
+          className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Send className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+});

@@ -6,7 +6,6 @@ import { supabase } from '../lib/supabaseClient';
 
 export function HomeView() {
   const [posts, setPosts] = useState<any[]>([]);
-  const [inputText, setInputText] = useState("");
 
   const fetchPosts = async () => {
     const { data, error } = await supabase
@@ -46,12 +45,12 @@ export function HomeView() {
     };
   }, []);
 
-  const handlePost = async () => {
-    if (!inputText.trim()) return;
+  const handlePost = async (textToPost: string): Promise<boolean> => {
+    if (!textToPost.trim()) return false;
     const session = await supabase.auth.getSession();
     const authUser = session.data.session?.user;
 
-    if (!authUser) return;
+    if (!authUser) return false;
 
     // First get the public.users id for this auth user
     const { data: userData, error: userError } = await supabase
@@ -84,12 +83,12 @@ export function HomeView() {
     let res;
 
     if (userId) {
-       res = await supabase.from('posts').insert([{ user_id: userId, content: inputText }]);
+       res = await supabase.from('posts').insert([{ user_id: userId, content: textToPost }]);
        if (res.error) {
-           res = await supabase.from('posts').insert([{ user_id: authUser.id, content: inputText }]);
+           res = await supabase.from('posts').insert([{ user_id: authUser.id, content: textToPost }]);
        }
     } else {
-       res = await supabase.from('posts').insert([{ user_id: authUser.id, content: inputText }]);
+       res = await supabase.from('posts').insert([{ user_id: authUser.id, content: textToPost }]);
     }
 
     const error = res.error;
@@ -100,14 +99,16 @@ export function HomeView() {
        const newPost = {
           id: Date.now(),
           user: authUser.user_metadata?.username || 'You',
-          content: inputText,
+          content: textToPost,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
        };
        setPosts(prev => [newPost, ...prev]);
-       setInputText("");
+       return true;
+
     } else {
-       setInputText("");
+       // Do nothing
     }
+    return true;
   };
 
   return (
@@ -116,21 +117,7 @@ export function HomeView() {
         <PostItem key={post.id} post={post} />
       ))}
 
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-10">
-        <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">
-          <input
-            type="text"
-            value={inputText}
-            maxLength={500}
-            onChange={e => setInputText(e.target.value)}
-            placeholder="夜の独り言..."
-            className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
-          />
-          <button onClick={handlePost} aria-label="送信" disabled={!inputText.trim()} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <Send className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      <ChatInput onPost={handlePost} />
     </div>
   );
 }
@@ -148,6 +135,56 @@ const PostItem = memo(({ post }: { post: any }) => {
         <span className="text-sm font-numbers text-gray-500 ml-auto">{post.time}</span>
       </div>
       <p className="pl-11 text-white/80 text-sm leading-relaxed">{post.content}</p>
+    </div>
+  );
+});
+
+
+// ⚡ Bolt Optimization: Extracted ChatInput to prevent the parent list view
+// from re-rendering on every keystroke. This isolates the state and avoids O(N) map operations.
+const ChatInput = memo(({ onPost }: { onPost: (text: string) => Promise<boolean> }) => {
+  const [inputText, setInputText] = useState("");
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      if (inputText.trim()) {
+        const success = await onPost(inputText);
+        if (success) {
+          setInputText("");
+        }
+      }
+    }
+    return true;
+  };
+
+  return (
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-10">
+      <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">
+        <input
+          type="text"
+          value={inputText}
+          maxLength={500}
+          onChange={e => setInputText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="夜の独り言..."
+          className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
+        />
+        <button
+          onClick={async () => {
+            if (inputText.trim()) {
+              const success = await onPost(inputText);
+              if (success) {
+                setInputText("");
+              }
+            }
+          }}
+          aria-label="送信"
+          disabled={!inputText.trim()}
+          className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Send className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 });
