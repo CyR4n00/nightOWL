@@ -75,7 +75,8 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     if (!error) {
       setNewMsg("");
     } else {
-      console.error(error);
+      // 🛡️ Sentinel: Removed detailed error log to prevent leaking database structure details
+      console.error("Failed to send message.");
     }
   };
 
