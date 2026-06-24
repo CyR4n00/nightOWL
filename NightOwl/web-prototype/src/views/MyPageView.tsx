@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 
-import { User, Lock, Settings2, Camera, Music, Play, Music4 } from 'lucide-react';
+import { User, Lock, Settings2, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }: { isPremium: boolean, setIsPremium: (v: boolean) => void, theme: string, setTheme: (t: any) => void, session: any }) {
+export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }: { isPremium: boolean, setIsPremium: (v: boolean) => void, theme: string, setTheme: (t: 'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy') => void, session: import('@supabase/supabase-js').Session | null }) {
   const [showPast, setShowPast] = useState(false);
   const [userIcon, setUserIcon] = useState<string | null>(null);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
@@ -47,7 +47,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
               <button
                 key={t.id}
                 disabled={!isPremium}
-                onClick={() => setTheme(t.id)}
+                onClick={() => setTheme(t.id as 'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy')}
                 className={`w-full p-4 rounded-xl border transition-all flex items-center justify-between ${
                   theme === t.id
                     ? 'bg-indigo-500/20 border-indigo-500 text-white'

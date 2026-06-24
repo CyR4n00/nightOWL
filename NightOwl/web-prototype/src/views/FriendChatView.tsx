@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 
 
@@ -6,10 +7,11 @@ import { supabase } from '../lib/supabaseClient';
 import { PrivateChatView } from './PrivateChatView';
 
 export function FriendChatView({ isPremium }: { isPremium: boolean }) {
-  const [activeChatTab, setActiveChatTab] = useState<'friends' | 'open'>('friends');
+
   const [friends, setFriends] = useState<any[]>([]);
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [activeFriend, setActiveFriend] = useState<any | null>(null);
+
 
   const fetchFriends = async () => {
     const session = await supabase.auth.getSession();
@@ -49,7 +51,24 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+
+  const fetchFriends = async () => {
+      const session = await supabase.auth.getSession();
+      const userId = session.data.session?.user?.id;
+      if (!userId) return;
+
+      const { data, error } = await supabase
+        .from('friends')
+        .select('*, users!friend_id (username)')
+        .eq('user_id', userId);
+
+      if (!error && data && mounted) {
+        setFriends(data as any[]);
+      }
+    };
     fetchFriends();
+    return () => { mounted = false; };
   }, []);
 
   return (

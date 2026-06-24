@@ -41,28 +41,28 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
           </div>
         </div>
 
-        <h1 className="text-5xl font-stencil text-white tracking-[0.2em] mb-12 text-shadow-sm">NIGHTOWL</h1>
+        <h1 className="text-4xl font-stencil text-white tracking-[0.2em] mb-12 text-shadow-sm mt-4">NIGHTOWL</h1>
 
         <p className="text-white/80 mb-6 tracking-[0.2em] text-sm font-light">
           夜が来るまで、あとすこし
         </p>
 
-        <div className="flex items-center justify-center gap-2 text-6xl font-stencil font-light text-white w-full mb-12">
-          <div className="flex flex-col items-center">
-            <span className="tracking-widest text-shadow-sm">{String(timeLeft.hours).padStart(2, '0')}</span>
-            <span className="text-[10px] text-white/50 mt-4 font-sans tracking-[0.3em] uppercase">HOUR</span>
+
+        <div className="flex flex-col items-center justify-center w-full mb-12">
+          <div className="flex items-center justify-center text-7xl font-stencil font-light text-white tracking-widest text-shadow-sm w-full">
+            <span>{String(timeLeft.hours).padStart(2, '0')}</span>
+            <span className="text-white/80 mx-2 pb-1">:</span>
+            <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
+            <span className="text-white/80 mx-2 pb-1">:</span>
+            <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
           </div>
-          <span className="text-white/80 -mt-8 mx-1">:</span>
-          <div className="flex flex-col items-center">
-            <span className="tracking-widest text-shadow-sm">{String(timeLeft.minutes).padStart(2, '0')}</span>
-            <span className="text-[10px] text-white/50 mt-4 font-sans tracking-[0.3em] uppercase">MINUTE</span>
-          </div>
-          <span className="text-white/80 -mt-8 mx-1">:</span>
-          <div className="flex flex-col items-center">
-            <span className="tracking-widest text-shadow-sm">{String(timeLeft.seconds).padStart(2, '0')}</span>
-            <span className="text-[10px] text-white/50 mt-4 font-sans tracking-[0.3em] uppercase">SECOND</span>
+          <div className="flex items-center justify-between w-64 mt-4 px-2">
+            <span className="text-[10px] text-white/50 font-sans tracking-[0.3em] uppercase">HOUR</span>
+            <span className="text-[10px] text-white/50 font-sans tracking-[0.3em] uppercase">MINUTE</span>
+            <span className="text-[10px] text-white/50 font-sans tracking-[0.3em] uppercase">SECOND</span>
           </div>
         </div>
+
 
         <div className="mt-8 mb-4">
           <div className="w-16 h-16 rounded-3xl border border-white/40 flex items-center justify-center bg-white/5 backdrop-blur-sm relative shadow-[0_0_15px_rgba(255,255,255,0.2)]">

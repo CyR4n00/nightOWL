@@ -40,7 +40,7 @@ export class RevenueCatService {
         return true;
     }
 
-    async checkPremiumStatus(_customerInfo?: any): Promise<boolean> {
+    async checkPremiumStatus(): Promise<boolean> {
         console.log("Checking user premium status...");
         // return _customerInfo?.entitlements.active['premium'] !== undefined;
         return false; // Default to free for now

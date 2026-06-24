@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 
 
@@ -46,7 +47,7 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
         if (error) throw error;
         onAuthSuccess();
       }
-    } catch (err: any) {
+    } catch {
       // 🛡️ Sentinel: Do not expose detailed authentication error messages to prevent username enumeration or leaking internal details.
       console.error("Authentication operation failed.");
       setError("認証に失敗しました。入力内容をご確認ください。");

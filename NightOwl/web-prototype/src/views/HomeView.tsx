@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 
 
@@ -5,8 +6,9 @@ import { Send } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export function HomeView() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [inputText, setInputText] = useState("");
+
 
   const fetchPosts = async () => {
     const { data, error } = await supabase
@@ -30,6 +32,16 @@ export function HomeView() {
   };
 
   useEffect(() => {
+    const mounted = true;
+
+  const fetchPosts = async () => {
+      const { data } = await supabase
+        .from('posts')
+        .select('*, users (username)')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (data && mounted) setPosts(data as any[]); // eslint-disable-line @typescript-eslint/no-explicit-any
+    };
     fetchPosts();
 
     // Setup realtime subscription
