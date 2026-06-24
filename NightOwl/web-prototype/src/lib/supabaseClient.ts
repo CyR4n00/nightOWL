@@ -10,6 +10,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(
-  supabaseUrl || 'https://lqpsnngvvwkdxzoywwnz.supabase.co',
-  supabaseAnonKey || 'dummy-key'
+  supabaseUrl,
+  supabaseAnonKey
 );
