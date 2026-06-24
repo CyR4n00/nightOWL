@@ -56,7 +56,8 @@ class VoiceRoomService {
       this.isConnected = true;
       return joinedUid;
     } catch (error) {
-      console.error("Failed to join voice room:", error);
+      // 🛡️ Sentinel: Removed detailed error object from log to prevent internal state exposure
+      console.error("Failed to join voice room.");
       throw error;
     }
   }
@@ -76,7 +77,8 @@ class VoiceRoomService {
       await this.client.leave();
       this.isConnected = false;
     } catch (error) {
-      console.error("Failed to leave voice room:", error);
+      // 🛡️ Sentinel: Removed detailed error object from log to prevent internal state exposure
+      console.error("Failed to leave voice room.");
     }
   }
 

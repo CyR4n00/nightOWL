@@ -7,7 +7,8 @@ export class RevenueCatService {
     private isInitialized = false;
 
     async initialize(apiKey: string) {
-        console.log(`Initializing RevenueCat with API Key: ${apiKey}`);
+        // 🛡️ Sentinel: Removed API key from console log to prevent credential exposure
+        console.log("Initializing RevenueCat...");
         // Purchases.configure({ apiKey });
         this.isInitialized = true;
     }

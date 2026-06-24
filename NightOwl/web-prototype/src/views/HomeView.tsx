@@ -26,7 +26,8 @@ export function HomeView() {
         time: new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       })));
     } else {
-      console.error(error);
+      // 🛡️ Sentinel: Removed detailed error log to prevent leaking database structure details
+      console.error("Failed to fetch posts.");
     }
   };
 
@@ -63,7 +64,8 @@ export function HomeView() {
     let userId = userData?.id;
 
     if (userError || !userData) {
-      console.warn("Could not find public user profile, attempting to create one...", userError);
+      // 🛡️ Sentinel: Removed detailed error log to prevent leaking database structure details
+      console.warn("Could not find public user profile, attempting to create one...");
       // Attempt to create a profile if it doesn't exist (can happen if trigger failed)
       const { data: newUser, error: createError } = await supabase
         .from('users')
@@ -75,7 +77,8 @@ export function HomeView() {
         .single();
 
       if (createError) {
-         console.error("Failed to create user profile:", createError);
+         // 🛡️ Sentinel: Removed detailed error log to prevent leaking database structure details
+         console.error("Failed to create user profile.");
       } else if (newUser) {
          userId = newUser.id;
       }
