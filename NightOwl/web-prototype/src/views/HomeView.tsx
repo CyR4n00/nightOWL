@@ -123,6 +123,13 @@ export function HomeView() {
             value={inputText}
             maxLength={500}
             onChange={e => setInputText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                handlePost();
+              }
+            }}
+            aria-label="投稿メッセージ"
             placeholder="夜の独り言..."
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
           />
