@@ -156,7 +156,8 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
       .rpc('add_friend', { target_user_id: targetUser.id });
 
     if (insertError) {
-      console.error(insertError);
+      // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+      console.error("Failed to insert friend request.");
       alert("フレンド追加に失敗しました。既にフレンドかもしれません。");
     } else {
       alert(`${searchId} をフレンドに追加しました！`);

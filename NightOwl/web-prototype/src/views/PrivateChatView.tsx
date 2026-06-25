@@ -75,7 +75,8 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     if (!error) {
       setNewMsg("");
     } else {
-      console.error(error);
+      // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+      console.error("Failed to send direct message.");
     }
   };
 
