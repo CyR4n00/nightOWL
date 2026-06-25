@@ -277,8 +277,10 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
     let mounted = true;
 
     const setupRoom = async () => {
-      // For prototyping, token is null. In prod, generate a token on your server.
-      const joined = await voiceRoomService.joinRoom(roomId, null);
+      // Generate Agora token via Supabase Edge Function
+      const tokenResponse = await supabase.functions.invoke('agora-token', { body: { channelName: roomId } });
+      const token = tokenResponse.data?.token || null;
+      const joined = await voiceRoomService.joinRoom(roomId, token);
 
       if (joined !== undefined && mounted) {
         if (isHost) {
