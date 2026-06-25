@@ -36,13 +36,15 @@ class VoiceRoomService {
         });
 
         if (error) {
-          console.warn("Failed to fetch token from Edge Function, falling back to null token (testing mode). Error:", error);
+          // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+          console.warn("Failed to fetch token from Edge Function, falling back to null token (testing mode).");
         } else {
           token = data?.token || null;
           console.log("Successfully fetched Agora token");
         }
       } catch (err) {
-        console.warn("Error invoking agora-token edge function, falling back to null token.", err);
+        // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+        console.warn("Error invoking agora-token edge function, falling back to null token.");
       }
 
       const joinedUid = await this.client.join(this.appId, channelName, token, uid);
@@ -56,7 +58,8 @@ class VoiceRoomService {
       this.isConnected = true;
       return joinedUid;
     } catch (error) {
-      console.error("Failed to join voice room:", error);
+      // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+      console.error("Failed to join voice room.");
       throw error;
     }
   }
@@ -76,7 +79,8 @@ class VoiceRoomService {
       await this.client.leave();
       this.isConnected = false;
     } catch (error) {
-      console.error("Failed to leave voice room:", error);
+      // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+      console.error("Failed to leave voice room.");
     }
   }
 
