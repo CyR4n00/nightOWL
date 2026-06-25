@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { Send, User } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -79,6 +79,13 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     }
   };
 
+  // ⚡ Bolt: Memoize message list to prevent O(N) re-renders on every newMsg keystroke
+  const renderedMessages = useMemo(() => {
+    return messages.map(msg => (
+      <MessageItem key={msg.id} msg={msg} />
+    ));
+  }, [messages]);
+
   return (
     <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
       <header className="p-4 flex items-center justify-between bg-transparent border-b border-white/10 z-10 pt-safe">
@@ -102,9 +109,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-        {messages.map(msg => (
-          <MessageItem key={msg.id} msg={msg} />
-        ))}
+        {renderedMessages}
       </div>
 
       <div className="p-4 bg-transparent border-t border-white/5">

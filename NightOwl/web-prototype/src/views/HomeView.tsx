@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 
 
 import { Send } from 'lucide-react';
@@ -110,11 +110,16 @@ export function HomeView() {
     }
   };
 
+  // ⚡ Bolt: Memoize post list to prevent O(N) re-renders on every inputText keystroke
+  const renderedPosts = useMemo(() => {
+    return posts.map(post => (
+      <PostItem key={post.id} post={post} />
+    ));
+  }, [posts]);
+
   return (
     <div className="flex flex-col gap-4 pb-20">
-      {posts.map(post => (
-        <PostItem key={post.id} post={post} />
-      ))}
+      {renderedPosts}
 
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-10">
         <div className="glass-panel p-2 pl-4 flex items-center gap-2 rounded-full">
