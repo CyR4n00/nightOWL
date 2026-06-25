@@ -41,7 +41,7 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
           </div>
         </div>
 
-        <h1 className="text-4xl font-stencil text-white tracking-[0.2em] mb-12 text-shadow-sm mt-4">NIGHTOWL</h1>
+        <h1 className="text-4xl font-stencil text-white tracking-[0.2em] mb-2 text-shadow-sm mt-4">NIGHTOWL</h1>
 
         <p className="text-white/80 mb-6 tracking-[0.2em] text-sm font-light">
           夜が来るまで、あとすこし
@@ -49,27 +49,22 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
 
 
         <div className="flex flex-col items-center justify-center w-full mb-12">
-          <div className="flex items-center justify-center text-7xl font-stencil font-light text-white tracking-widest text-shadow-sm w-full">
+          <div className="flex items-center justify-center text-7xl font-numbers font-light text-white tracking-widest text-shadow-sm w-full">
             <span>{String(timeLeft.hours).padStart(2, '0')}</span>
-            <span className="text-white/80 mx-2 pb-1">:</span>
+            <span className="text-white/80 mx-1 pb-1 font-sans">:</span>
             <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
-            <span className="text-white/80 mx-2 pb-1">:</span>
-            <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
           </div>
-          <div className="flex items-center justify-between w-64 mt-4 px-2">
-            <span className="text-[10px] text-white/50 font-sans tracking-[0.3em] uppercase">HOUR</span>
-            <span className="text-[10px] text-white/50 font-sans tracking-[0.3em] uppercase">MINUTE</span>
-            <span className="text-[10px] text-white/50 font-sans tracking-[0.3em] uppercase">SECOND</span>
+          <div className="flex items-center justify-center w-64 mt-4">
+             <div className="px-4 py-1 rounded-full bg-white/10 flex items-center gap-2 border border-white/20">
+                <Lock className="w-3 h-3 text-white/70" />
+                <span className="text-[11px] text-white/80 font-numbers tracking-[0.1em]">
+                  {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}
+                </span>
+             </div>
           </div>
         </div>
 
 
-        <div className="mt-8 mb-4">
-          <div className="w-16 h-16 rounded-3xl border border-white/40 flex items-center justify-center bg-white/5 backdrop-blur-sm relative shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-             <Lock className="w-6 h-6 text-white" strokeWidth={1.5} />
-             <div className="absolute inset-0 rounded-3xl shadow-[0_0_10px_rgba(255,255,255,0.5)] pointer-events-none border border-white/50"></div>
-          </div>
-        </div>
 
         {/* Debug bypass button for testing - Made prominent for the user */}
         <button

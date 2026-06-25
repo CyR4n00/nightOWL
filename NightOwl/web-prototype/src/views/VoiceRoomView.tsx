@@ -94,7 +94,7 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
         </div>
         <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 text-shadow-sm mt-12 opacity-80">NIGHTOWL</h1>
         <h2 className="font-stencil text-4xl text-white tracking-[0.1em] mt-2 text-shadow-sm pb-1">VOICE ROOM</h2>
-        <p className="text-xs text-white/80 mt-2 font-light tracking-[0.1em]">深夜の放送局</p>
+        <p className="text-xs text-white mt-2 font-stencil tracking-[0.1em]">深夜の放送局</p>
         <div className="w-full h-[1px] bg-white/5 mt-4"></div>
       </div>
 
@@ -152,24 +152,24 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
   const [duration, setDuration] = useState<number>(2); // Default 2 hours
 
   return (
-    <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
+    <div className="flex flex-col h-[100dvh] fixed inset-0 z-30 theme-default pb-safe">
       <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe">
-        <button onClick={onClose} className="text-white/80 p-2 -ml-2">
+        <button onClick={onClose} className="text-white p-2 -ml-2 font-stencil">
           ← キャンセル
         </button>
-        <h2 className="font-bold text-sm text-white/90">ルームを開く</h2>
+        <h2 className="font-stencil font-bold text-sm text-white">ルームを開く</h2>
         <div className="w-16"></div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      <div className="flex-1 overflow-y-auto p-6 space-y-8 relative z-10">
         <div>
-           <label className="text-xs text-white/90 font-semibold mb-2 block">ルーム名</label>
+           <label className="text-xs text-white font-stencil mb-2 block">ルーム名</label>
            <input type="text" placeholder="深夜の読書会..." value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-indigo-500/50" />
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold text-white/90 mb-4 px-1 flex items-center gap-2">
-            <Music4 className="w-4 h-4" /> BGM選択
+          <h3 className="text-xs font-stencil text-white mb-4 px-1 flex items-center gap-2">
+            <Music4 className="w-4 h-4 text-white" /> BGM選択
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -183,20 +183,20 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
                 onClick={() => setBgm(t.id as 'none' | 'lofi' | 'rain' | 'fire')}
                 className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
                   bgm === t.id
-                    ? 'bg-indigo-500/20 border-indigo-500 text-white/90'
+                    ? 'bg-indigo-500/20 border-indigo-500 text-white'
                     : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                 }`}
               >
                 {t.icon}
-                <span className="text-xs font-medium">{t.label}</span>
+                <span className="text-xs font-stencil">{t.label}</span>
               </button>
             ))}
           </div>
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold text-white/90 mb-4 px-1 flex items-center gap-2">
-            <Clock className="w-4 h-4" /> 自動終了までの時間
+          <h3 className="text-xs font-stencil text-white mb-4 px-1 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-white" /> 自動終了までの時間
           </h3>
           <div className="flex items-center gap-4">
             <input
@@ -307,8 +307,8 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe theme-default w-full overflow-hidden">
-      <div className="p-6 flex flex-col h-full">
+    <div className="flex flex-col h-[100dvh] fixed inset-0 z-30 theme-default pb-safe w-full overflow-hidden">
+      <div className="p-6 flex flex-col h-full relative z-10">
          <div className="flex flex-col items-center justify-center mb-8 relative pt-8">
            <div className="absolute top-0 w-full text-center">
                <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">N I G H T O W L</span>
@@ -316,24 +316,24 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
            <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 text-shadow-sm mt-12 opacity-80">NIGHTOWL</h1>
            <h2 className="text-4xl font-stencil text-white tracking-[0.1em] mt-2 text-shadow-sm pb-1">VOICE ROOM</h2>
            <div className="bg-white/10 px-4 py-2 rounded-full border border-white/20 text-sm font-stencil tracking-widest flex items-center gap-2 mt-4 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-             <Clock className="w-4 h-4 text-white/80" />
-             <span className="text-white/90">{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
+             <Clock className="w-4 h-4 text-white" />
+             <span className="text-white font-stencil">{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
            </div>
          </div>
 
          <div className="flex-1 flex flex-col items-center justify-center">
             {isConnecting ? (
-              <div className="text-white/90 animate-pulse">接続中...</div>
+              <div className="text-white animate-pulse font-stencil">接続中...</div>
             ) : (
               <div className="w-32 h-32 rounded-full bg-indigo-500/20 border-2 border-indigo-500/50 flex items-center justify-center relative shadow-[0_0_30px_rgba(79,70,229,0.3)]">
                  {!isMuted ? (
-                     <Mic className="w-12 h-12 text-white/90" />
+                     <Mic className="w-12 h-12 text-white" />
                  ) : (
-                     <MicOff className="w-12 h-12 text-gray-500" />
+                     <MicOff className="w-12 h-12 text-gray-400" />
                  )}
               </div>
             )}
-            <p className="mt-8 text-sm text-white">
+            <p className="mt-8 text-sm text-white font-stencil">
                {isHost ? "ホストとして配信中" : "リスナーとして参加中"}
             </p>
 
@@ -343,7 +343,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
                   setTimeLeft(prev => prev + 1800); // Add 30 mins
                   setIsExtended(true);
                 }}
-                className="mt-6 px-4 py-2 rounded-full border border-indigo-500/50 text-white/90 text-sm hover:bg-indigo-500/20 transition-colors"
+                className="mt-6 px-4 py-2 rounded-full border border-indigo-500/50 text-white text-sm hover:bg-indigo-500/20 transition-colors font-stencil"
               >
                 + 30分延長する
               </button>

@@ -28,15 +28,15 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
     ];
 
     return (
-      <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
-        <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe">
+      <div className={`flex flex-col h-[100dvh] fixed inset-0 z-30 theme-${theme} pb-safe overflow-hidden w-full`}>
+        <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe bg-black/20 backdrop-blur-md">
           <button onClick={() => setShowThemeSettings(false)} className="text-indigo-400 p-2 -ml-2">
             ← 戻る
           </button>
           <h2 className="font-bold text-sm text-white/90">テーマ設定</h2>
           <div className="w-10"></div>
         </header>
-        <div className="p-6 overflow-y-auto">
+        <div className="p-6 overflow-y-auto relative z-10 bg-black/20 backdrop-blur-sm h-full">
           {!isPremium && (
             <div className="mb-6 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-200 text-sm">
               テーマの変更はプレミアムプラン限定の機能です。
@@ -66,15 +66,15 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
 
   if (showPast) {
     return (
-      <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
-        <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe">
+      <div className={`flex flex-col h-[100dvh] fixed inset-0 z-30 theme-${theme} pb-safe overflow-hidden w-full`}>
+        <header className="p-4 flex items-center justify-between border-b border-white/10 z-10 pt-safe bg-black/20 backdrop-blur-md">
           <button onClick={() => setShowPast(false)} className="text-indigo-400 p-2 -ml-2">
             ← 戻る
           </button>
           <h2 className="font-bold text-sm text-white/90">過去の記録</h2>
           <div className="w-10"></div>
         </header>
-        <div className="p-4 flex flex-col gap-4 overflow-y-auto pb-24">
+        <div className="p-4 flex flex-col gap-4 overflow-y-auto pb-24 relative z-10 bg-black/20 backdrop-blur-sm h-full">
           <div className="glass-panel p-4 flex flex-col gap-2 opacity-70">
             <div className="flex items-center gap-3">
               <span className="text-xs text-indigo-300">2023.10.15</span>
