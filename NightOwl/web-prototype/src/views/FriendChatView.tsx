@@ -57,6 +57,7 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
       <div className="p-4 pt-8 text-center border-b border-white/5 relative">
         <h2 className="font-serif text-2xl glow-text">Friends</h2>
         <button
+          aria-label="フレンドを追加"
           onClick={() => setShowAddFriend(true)}
           className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 rounded-full transition-colors"
         >
@@ -155,7 +156,8 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
       .rpc('add_friend', { target_user_id: targetUser.id });
 
     if (insertError) {
-      console.error(insertError);
+      // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+      console.error("Failed to insert friend request.");
       alert("フレンド追加に失敗しました。既にフレンドかもしれません。");
     } else {
       alert(`${searchId} をフレンドに追加しました！`);
@@ -190,9 +192,15 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
               type="text"
               placeholder="NightOwl IDを入力"
               value={searchId}
+              maxLength={50}
               onChange={e => setSearchId(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-indigo-300/30 outline-none focus:border-indigo-500/50"
-              maxLength={30}
             />
           </div>
           <button
@@ -221,6 +229,7 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
               nightowl.app/invite/{myUsername}
             </span>
             <button
+              aria-label="招待リンクをコピー"
               onClick={handleCopy}
               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-indigo-300"
             >

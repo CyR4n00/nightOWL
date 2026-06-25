@@ -129,10 +129,10 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
               <input
                 type="text"
                 value={newUsername}
+                maxLength={20}
                 onChange={(e) => setNewUsername(e.target.value)}
                 className="bg-white/10 border border-indigo-500/50 rounded-lg px-3 py-1 text-white outline-none w-32"
                 autoFocus
-                maxLength={30}
               />
               <button
                 onClick={async () => {
