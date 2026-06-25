@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { Send, User } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -74,11 +74,18 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
     if (!error) {
       return true;
     } else {
-      console.error(error);
+      // 🛡️ Sentinel: Do not log detailed database errors to the client console to prevent information exposure.
+      console.error("Failed to send direct message.");
       return false;
     }
-    return false;
   };
+
+  // ⚡ Bolt: Memoize message list to prevent O(N) re-renders on every newMsg keystroke
+  const renderedMessages = useMemo(() => {
+    return messages.map(msg => (
+      <MessageItem key={msg.id} msg={msg} />
+    ));
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-full fixed inset-0 z-30 bg-black/40 backdrop-blur-md pb-safe">
@@ -103,9 +110,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-        {messages.map(msg => (
-          <MessageItem key={msg.id} msg={msg} />
-        ))}
+        {renderedMessages}
       </div>
 
       <PrivateChatInput onSend={handleSend} />
@@ -122,7 +127,6 @@ const MessageItem = memo(({ msg }: { msg: any }) => (
   </div>
 ));
 
-
 // ⚡ Bolt Optimization: Extracted PrivateChatInput to prevent the parent message list
 // from re-rendering on every keystroke, ensuring isolated and efficient updates.
 const PrivateChatInput = memo(({ onSend }: { onSend: (text: string) => Promise<boolean> }) => {
@@ -137,7 +141,6 @@ const PrivateChatInput = memo(({ onSend }: { onSend: (text: string) => Promise<b
         }
       }
     }
-    return false;
   };
 
   return (
