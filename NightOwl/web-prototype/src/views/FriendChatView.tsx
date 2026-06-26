@@ -191,6 +191,7 @@ function AddFriendView({ onClose, isPremium, currentFriendCount }: { onClose: ()
             <input
               type="text"
               placeholder="NightOwl IDを入力"
+              aria-label="NightOwl IDを入力"
               value={searchId}
               maxLength={50}
               onChange={e => setSearchId(e.target.value)}
