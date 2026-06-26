@@ -138,6 +138,7 @@ export function HomeView() {
               }
             }}
             placeholder="夜の独り言..."
+            aria-label="投稿内容"
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-500"
           />
           <button onClick={handlePost} aria-label="送信" disabled={!inputText.trim()} className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 hover:bg-indigo-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
