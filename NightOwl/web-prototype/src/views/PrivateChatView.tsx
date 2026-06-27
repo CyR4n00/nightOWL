@@ -48,8 +48,20 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         // Setup realtime subscription
         subscription = supabase
           .channel(`dm:${userData.id}:${friend.id}`)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, () => {
-             fetchMessages(userData.id);
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, (payload) => {
+             // ⚡ Bolt: Prevent O(N) list refetching on every INSERT by appending directly to state
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             const newMsg = payload.new as any;
+             setMessages(prev => {
+               // Prevent duplicates if we already added it locally
+               if (prev.some(m => m.id === newMsg.id)) return prev;
+               return [...prev, {
+                 id: newMsg.id,
+                 isMe: newMsg.sender_id === userData.id,
+                 text: newMsg.content,
+                 time: new Date(newMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+               }];
+             });
           })
           .subscribe();
       }

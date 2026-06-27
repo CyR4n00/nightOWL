@@ -37,8 +37,39 @@ export function HomeView() {
     // Setup realtime subscription
     const subscription = supabase
       .channel('public:posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-        fetchPosts();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
+        if (payload.eventType === 'INSERT') {
+          // ⚡ Bolt: Prevent O(N) list refetching on every INSERT by fetching only the new post and prepending to state
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const newPostData = payload.new as any;
+
+          // Fetch the joined user data for the new post
+          const { data: fullPost } = await supabase
+            .from('posts')
+            .select('*, users!user_id ( username, display_name )')
+            .eq('id', newPostData.id)
+            .single();
+
+          if (fullPost) {
+            setPosts(prev => {
+              // Prevent duplicates if we already added it locally
+              if (prev.some(p => p.id === fullPost.id)) return prev;
+
+              const newPost = {
+                id: fullPost.id,
+                user: fullPost.users?.username || 'unknown',
+                content: fullPost.content,
+                time: new Date(fullPost.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              };
+
+              // Prepend the new post and keep the list capped at 50 to avoid memory leak
+              return [newPost, ...prev].slice(0, 50);
+            });
+          }
+        } else {
+          // Fall back to refetching on UPDATE or DELETE events to preserve existing functionality
+          fetchPosts();
+        }
       })
       .subscribe();
 
