@@ -1,15 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get environment variables from Vite
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://dummy.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'dummy_anon_key';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn("Supabase URL or Anon Key is missing. Using dummy placeholders to prevent app crash.");
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn("Supabase URL or Anon Key is missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file. The application will not function properly without them.");
+  // Provide a dummy URL specifically for local UI prototyping without a backend.
+  // DO NOT mask this by ignoring the error, just pass placeholders to prevent Vite fast-refresh crashes on load.
 }
 
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey
+  supabaseUrl || 'https://dummy.supabase.co',
+  supabaseAnonKey || 'dummy_anon_key'
 );

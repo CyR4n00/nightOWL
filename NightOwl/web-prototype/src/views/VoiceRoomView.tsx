@@ -92,8 +92,8 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
         <div className="absolute top-4 left-0 w-full text-center">
             <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">N I G H T O W L</span>
         </div>
-        <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 text-shadow-sm mt-12 opacity-80">NIGHTOWL</h1>
-        <h2 className="font-stencil text-4xl text-white tracking-[0.1em] mt-2 text-shadow-sm pb-1">VOICE ROOM</h2>
+        <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 glow-text mt-12 opacity-80">NIGHTOWL</h1>
+        <h2 className="font-stencil text-4xl text-white tracking-[0.1em] mt-2 glow-text pb-1">VOICE ROOM</h2>
         <p className="text-xs text-white mt-2 font-stencil tracking-[0.1em]">深夜の放送局</p>
         <div className="w-full h-[1px] bg-white/5 mt-4"></div>
       </div>
@@ -313,8 +313,8 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
            <div className="absolute top-0 w-full text-center">
                <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">N I G H T O W L</span>
            </div>
-           <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 text-shadow-sm mt-12 opacity-80">NIGHTOWL</h1>
-           <h2 className="text-4xl font-stencil text-white tracking-[0.1em] mt-2 text-shadow-sm pb-1">VOICE ROOM</h2>
+           <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 glow-text mt-12 opacity-80">NIGHTOWL</h1>
+           <h2 className="text-4xl font-stencil text-white tracking-[0.1em] mt-2 glow-text pb-1">VOICE ROOM</h2>
            <div className="bg-white/10 px-4 py-2 rounded-full border border-white/20 text-sm font-stencil tracking-widest flex items-center gap-2 mt-4 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
              <Clock className="w-4 h-4 text-white" />
              <span className="text-white font-stencil">{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>

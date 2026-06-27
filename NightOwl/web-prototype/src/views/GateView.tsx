@@ -41,7 +41,7 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
           </div>
         </div>
 
-        <h1 className="text-4xl font-stencil text-white tracking-[0.2em] mb-2 text-shadow-sm mt-4">NIGHTOWL</h1>
+        <h1 className="text-4xl font-stencil text-white tracking-[0.2em] mb-2 glow-text mt-4">NIGHTOWL</h1>
 
         <p className="text-white/80 mb-6 tracking-[0.2em] text-sm font-light">
           夜が来るまで、あとすこし
@@ -49,7 +49,7 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
 
 
         <div className="flex flex-col items-center justify-center w-full mb-12">
-          <div className="flex items-center justify-center text-7xl font-numbers font-light text-white tracking-widest text-shadow-sm w-full">
+          <div className="flex items-center justify-center text-7xl font-numbers font-light text-white tracking-widest glow-text w-full">
             <span>{String(timeLeft.hours).padStart(2, '0')}</span>
             <span className="text-white/80 mx-1 pb-1 font-sans">:</span>
             <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
