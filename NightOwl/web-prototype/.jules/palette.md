@@ -5,3 +5,6 @@
 ## 2024-06-25 - Prevent Premature Submission on Enter Key with IME
 **Learning:** When using Japanese IME (Input Method Editor), pressing the 'Enter' key to finalize character conversion triggers an `onKeyDown` event with `e.key === 'Enter'`. If a text input has a simple `if (e.key === 'Enter')` check to submit the form, this will cause the form to submit prematurely before the user finishes typing.
 **Action:** Always check `!e.nativeEvent.isComposing` inside `onKeyDown` event listeners for text inputs when listening for the 'Enter' key to ensure submission only occurs when the user actually intends to submit, not while composing characters.
+## 2024-06-28 - AuthView Password Visibility & A11y
+**Learning:** Text inputs that rely solely on `placeholder` attributes without an associated `<label>` are inherently inaccessible to screen readers. Furthermore, adding interactive elements like a password toggle button inside an input container requires carefully adjusting the input's padding (e.g., `pr-12`) to avoid text overlap with the absolute positioned button.
+**Action:** When creating text inputs without explicit `<label>` tags, always add a descriptive `aria-label`. For interactive nested input adornments, ensure corresponding padding adjustments and apply `aria-label` and `focus-visible` states for keyboard navigation.
