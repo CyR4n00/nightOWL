@@ -45,11 +45,28 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         setCurrentUserId(userData.id);
         await fetchMessages(userData.id);
 
-        // Setup realtime subscription
+        // ⚡ Bolt: Setup realtime subscription optimized for O(1) state updates instead of O(N) re-fetches
         subscription = supabase
           .channel(`dm:${userData.id}:${friend.id}`)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, () => {
-             fetchMessages(userData.id);
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, (payload) => {
+             const newMsg = payload.new;
+             // Ensure the message belongs to this chat session
+             if (
+               (newMsg.sender_id === userData.id && newMsg.receiver_id === friend.id) ||
+               (newMsg.sender_id === friend.id && newMsg.receiver_id === userData.id)
+             ) {
+               const formattedMsg = {
+                 id: newMsg.id,
+                 isMe: newMsg.sender_id === userData.id,
+                 text: newMsg.content,
+                 time: new Date(newMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+               };
+
+               setMessages(prev => {
+                 if (prev.some(m => m.id === formattedMsg.id)) return prev;
+                 return [...prev, formattedMsg];
+               });
+             }
           })
           .subscribe();
       }
