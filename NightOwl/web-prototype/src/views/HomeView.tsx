@@ -34,11 +34,38 @@ export function HomeView() {
   useEffect(() => {
     fetchPosts();
 
-    // Setup realtime subscription
+    // ⚡ Bolt: Setup realtime subscription optimized for O(1) state updates on INSERT instead of O(N) re-fetches
     const subscription = supabase
       .channel('public:posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-        fetchPosts();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
+        if (payload.eventType === 'INSERT') {
+          // Fetch the inserted post to get related user data
+          const { data: postData } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              users!user_id ( username, display_name )
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (postData) {
+            const newPost = {
+              id: postData.id,
+              user: postData.users?.username || 'unknown',
+              content: postData.content,
+              time: new Date(postData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            setPosts(prev => {
+              if (prev.some(p => p.id === newPost.id)) return prev;
+              return [newPost, ...prev];
+            });
+          }
+        } else {
+          // Fallback to fetch for UPDATE and DELETE events
+          fetchPosts();
+        }
       })
       .subscribe();
 
