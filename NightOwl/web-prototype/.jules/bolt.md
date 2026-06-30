@@ -4,3 +4,6 @@
 ## 2024-06-25 - Prevent O(N) re-renders on keystrokes in list components
 **Learning:** In React, coupling high-frequency text input state (like chat input) with unmemoized `.map()` list renderings causes severe UI thrashing, as the entire list of N elements is re-created on every keystroke. Wrapping child elements in `React.memo` is insufficient because the parent still re-computes the array map and performs N prop comparisons.
 **Action:** Always wrap `.map()` list generation inside a `useMemo` hook, caching the generated JSX array against the raw data array dependency, ensuring O(1) list reconciliation during input typing.
+## 2024-06-30 - O(1) targeted Real-time Subscriptions
+**Learning:** Found that listening to `event: '*'` on real-time collections (posts, messages) triggered an expensive and redundant O(N) database query across the network for every single `INSERT` event.
+**Action:** Intercept `event: 'INSERT'` specifically. Use `payload.new` to fetch only the minimal required relational data (e.g. user details), then prepend it to local state in O(1) time. Maintain full refetches for `UPDATE`/`DELETE` for data integrity unless individual parsing is strictly required. Ensure list array max-lengths are enforced (e.g. `slice(0, 50)`) locally to prevent memory leaks during long-lived sessions.

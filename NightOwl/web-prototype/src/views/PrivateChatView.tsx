@@ -46,9 +46,39 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         await fetchMessages(userData.id);
 
         // Setup realtime subscription
+        // ⚡ Bolt: O(1) state update for new messages to prevent O(N) refetching on every message
         subscription = supabase
           .channel(`dm:${userData.id}:${friend.id}`)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, () => {
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, (payload) => {
+             const newMsg = payload.new;
+             // Verify message belongs to this conversation
+             if (
+               (newMsg.sender_id === userData.id && newMsg.receiver_id === friend.id) ||
+               (newMsg.sender_id === friend.id && newMsg.receiver_id === userData.id)
+             ) {
+               setMessages(prev => {
+                 // Prevent duplicates
+                 if (prev.some(m => m.id === newMsg.id)) return prev;
+
+                 const formattedMsg = {
+                   id: newMsg.id,
+                   isMe: newMsg.sender_id === userData.id,
+                   text: newMsg.content,
+                   time: new Date(newMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                 };
+                 // Since fetchMessages reverses the result, older are first.
+                 // So we append the new message at the end
+                 const newArr = [...prev, formattedMsg];
+                 // Keep the last 50
+                 if (newArr.length > 50) return newArr.slice(newArr.length - 50);
+                 return newArr;
+               });
+             }
+          })
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'direct_messages' }, () => {
+             fetchMessages(userData.id);
+          })
+          .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'direct_messages' }, () => {
              fetchMessages(userData.id);
           })
           .subscribe();
