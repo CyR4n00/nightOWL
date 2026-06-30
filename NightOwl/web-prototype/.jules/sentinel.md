@@ -12,3 +12,8 @@
 **Vulnerability:** Raw database and backend service error objects (e.g. Supabase and Agora errors) were being logged directly to the client-side console using console.error and console.warn.
 **Learning:** Even if errors are not shown in the UI, exposing raw error objects in the browser console can leak sensitive database schema details, PostgREST internal states, or service configuration that attackers can use to craft targeted exploits.
 **Prevention:** Always sanitize error logs on the client. Use generic string messages for console outputs in production code instead of passing the raw error object.
+
+## 2026-06-25 - [PostgREST Injection]
+**Vulnerability:** A PostgREST injection vulnerability existed in `PrivateChatView.tsx` due to direct string interpolation of `userId` and `friend.id` into the Supabase `.or()` query method (`.or(\`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})\`)`).
+**Learning:** Using untrusted input directly within Supabase query strings (like `.or()`) can allow attackers to inject malicious logic (like extra commas or parentheses) to bypass intended filters, similar to SQL injection.
+**Prevention:** Always strictly validate variables used in string interpolations for `.or()` queries (e.g., using regex to ensure they only contain alphanumeric characters and hyphens for UUIDs).
