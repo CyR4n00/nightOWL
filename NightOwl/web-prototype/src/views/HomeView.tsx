@@ -35,9 +35,34 @@ export function HomeView() {
     fetchPosts();
 
     // Setup realtime subscription
+    // ⚡ Bolt: O(1) state update for INSERTs instead of O(N) full refetch to prevent unnecessary data transfer and memory usage.
     const subscription = supabase
       .channel('public:posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, async (payload) => {
+        const newPost = payload.new;
+        // Fetch only the related user data
+        const { data: userData } = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', newPost.user_id)
+          .single();
+
+        setPosts(prevPosts => {
+          // Prevent duplicates if already added via local optimistic update
+          if (prevPosts.some(p => p.id === newPost.id)) return prevPosts;
+
+          return [{
+            id: newPost.id,
+            user: userData?.username || 'unknown',
+            content: newPost.content,
+            time: new Date(newPost.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }, ...prevPosts].slice(0, 50); // Keep max 50 items locally
+        });
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, () => {
+        fetchPosts();
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'posts' }, () => {
         fetchPosts();
       })
       .subscribe();
