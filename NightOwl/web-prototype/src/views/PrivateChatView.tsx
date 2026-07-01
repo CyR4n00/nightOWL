@@ -8,6 +8,13 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
+    // 🛡️ Sentinel: Validate IDs as UUID/alphanumeric to prevent PostgREST injection attacks
+    const isValidId = (id: string) => /^[a-zA-Z0-9-]+$/.test(id);
+    if (!isValidId(userId) || !isValidId(friend.id)) {
+      console.error("Invalid user ID format.");
+      return;
+    }
+
     const { data, error } = await supabase
       .from('direct_messages')
       .select('*')
