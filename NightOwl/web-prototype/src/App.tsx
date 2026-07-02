@@ -94,8 +94,10 @@ function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'd
       </div>
 
       <div className="flex-1 relative z-10 w-full max-w-lg mx-auto">
-        <header className="p-4 sticky top-0 z-20 flex justify-center bg-transparent">
-          <h1 className="font-bold text-indigo-300 tracking-widest text-xl drop-shadow-[0_0_8px_rgba(129,140,248,0.5)] pb-1">NightOwl</h1>
+        <header className="p-4 sticky top-0 z-20 flex flex-col items-center justify-center bg-transparent">
+          <div className="text-center w-full mt-2">
+            <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em] relative -top-3">N I G H T O W L</span>
+          </div>
         </header>
 
         <main className="p-4 space-y-4 h-full">

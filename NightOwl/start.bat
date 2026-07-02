@@ -1,6 +1,10 @@
 @echo off
 echo Starting NightOwl Development Server...
 
+REM Automatically generate .env file
+echo Setting up environment variables...
+node setup_env.js
+
 cd web-prototype
 
 REM Install dependencies if node_modules doesn't exist

@@ -5,8 +5,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("supabaseUrl is required. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.");
+  console.warn("Supabase URL or Anon Key is missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file. The application will not function properly without them.");
+  // Provide a dummy URL specifically for local UI prototyping without a backend.
+  // DO NOT mask this by ignoring the error, just pass placeholders to prevent Vite fast-refresh crashes on load.
 }
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(
+  supabaseUrl || 'https://dummy.supabase.co',
+  supabaseAnonKey || 'dummy_anon_key'
+);

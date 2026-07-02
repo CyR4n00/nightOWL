@@ -89,11 +89,7 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
   return (
     <div className="flex flex-col h-[100dvh] theme-default relative pb-safe w-full absolute inset-0 overflow-hidden">
       <div className="p-4 pt-12 text-center relative z-10">
-        <div className="absolute top-4 left-0 w-full text-center">
-            <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">N I G H T O W L</span>
-        </div>
-        <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 glow-text mt-12 opacity-80">NIGHTOWL</h1>
-        <h2 className="font-stencil text-4xl text-white tracking-[0.1em] mt-2 glow-text pb-1">VOICE ROOM</h2>
+        <h2 className="font-stencil text-4xl text-white tracking-[0.1em] mt-4 mb-4 glow-text pb-1">VOICE ROOM</h2>
         <p className="text-xs text-white mt-2 font-stencil tracking-[0.1em]">深夜の放送局</p>
         <div className="w-full h-[1px] bg-white/5 mt-4"></div>
       </div>
@@ -310,11 +306,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
     <div className="flex flex-col h-[100dvh] fixed inset-0 z-30 theme-default pb-safe w-full overflow-hidden">
       <div className="p-6 flex flex-col h-full relative z-10">
          <div className="flex flex-col items-center justify-center mb-8 relative pt-8">
-           <div className="absolute top-0 w-full text-center">
-               <span className="font-stencil text-[10px] text-white/80 tracking-[0.2em]">N I G H T O W L</span>
-           </div>
-           <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-4 glow-text mt-12 opacity-80">NIGHTOWL</h1>
-           <h2 className="text-4xl font-stencil text-white tracking-[0.1em] mt-2 glow-text pb-1">VOICE ROOM</h2>
+           <h2 className="text-4xl font-stencil text-white tracking-[0.1em] mt-4 glow-text pb-1">VOICE ROOM</h2>
            <div className="bg-white/10 px-4 py-2 rounded-full border border-white/20 text-sm font-stencil tracking-widest flex items-center gap-2 mt-4 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
              <Clock className="w-4 h-4 text-white" />
              <span className="text-white font-stencil">{Math.floor(timeLeft / 3600)}:{(Math.floor(timeLeft / 60) % 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
