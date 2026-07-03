@@ -37,8 +37,38 @@ export function HomeView() {
     // Setup realtime subscription
     const subscription = supabase
       .channel('public:posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-        fetchPosts();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
+        // ⚡ Bolt: Optimize realtime subscription to prevent O(N) refetch on every insert
+        if (payload.eventType === 'INSERT') {
+          // Fetch just the new post to get joined user data
+          const { data } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              users!user_id ( username, display_name )
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (data) {
+            const newPost = {
+              id: data.id,
+              user: data.users?.username || 'unknown',
+              content: data.content,
+              time: new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            setPosts(prev => {
+              // Prevent duplicates if local fallback already inserted it
+              if (prev.some(p => p.id === newPost.id)) return prev;
+              return [newPost, ...prev].slice(0, 50); // Keep max 50
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          setPosts(prev => prev.filter(p => p.id !== payload.old.id));
+        } else {
+          // UPDATE fallback
+          fetchPosts();
+        }
       })
       .subscribe();
 

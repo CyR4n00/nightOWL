@@ -4,3 +4,6 @@
 ## 2024-06-25 - Prevent O(N) re-renders on keystrokes in list components
 **Learning:** In React, coupling high-frequency text input state (like chat input) with unmemoized `.map()` list renderings causes severe UI thrashing, as the entire list of N elements is re-created on every keystroke. Wrapping child elements in `React.memo` is insufficient because the parent still re-computes the array map and performs N prop comparisons.
 **Action:** Always wrap `.map()` list generation inside a `useMemo` hook, caching the generated JSX array against the raw data array dependency, ensuring O(1) list reconciliation during input typing.
+## 2026-07-03 - O(1) Realtime State Reconciliation
+**Learning:** Subscribing to Supabase realtime events with `event: '*'` or `event: 'INSERT'` and blindly calling a network refetch function (like `fetchPosts()` or `fetchMessages()`) inside the handler causes O(N) data transfer and database load on every single insertion, which degrades performance severely under load.
+**Action:** Always parse `payload.new` within the `postgres_changes` callback to construct the new object locally, and prepend/append it directly to React state using functional state updates (`setPosts(prev => [newPost, ...prev])`), completely bypassing the network refetch while maintaining O(1) efficiency.
