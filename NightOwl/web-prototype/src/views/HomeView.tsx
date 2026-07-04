@@ -37,8 +37,38 @@ export function HomeView() {
     // Setup realtime subscription
     const subscription = supabase
       .channel('public:posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-        fetchPosts();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
+        // ⚡ Bolt: Use payload to perform O(1) targeted local state updates instead of full O(N) refetch
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const { data: newPostData } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              users!user_id ( username, display_name )
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (newPostData) {
+            const formattedPost = {
+              id: newPostData.id,
+              user: newPostData.users?.username || 'unknown',
+              content: newPostData.content,
+              time: new Date(newPostData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            setPosts(prev => {
+              if (payload.eventType === 'INSERT') {
+                if (prev.some(p => p.id === formattedPost.id)) return prev;
+                return [formattedPost, ...prev].slice(0, 50);
+              } else {
+                return prev.map(p => p.id === formattedPost.id ? formattedPost : p);
+              }
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          setPosts(prev => prev.filter(p => p.id !== payload.old.id));
+        }
       })
       .subscribe();
 
