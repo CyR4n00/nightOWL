@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 
 import { supabase } from '../lib/supabaseClient';
-import { Mail, Lock, User, LogIn, UserPlus, Apple, Computer } from 'lucide-react';
+import { Mail, Lock, User, LogIn, UserPlus, Apple, Computer, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
         if (error) throw error;
         onAuthSuccess();
       }
-    } catch (err: any) {
+    } catch {
       // 🛡️ Sentinel: Do not expose detailed authentication error messages to prevent username enumeration or leaking internal details.
       console.error("Authentication operation failed.");
       setError("認証に失敗しました。入力内容をご確認ください。");
@@ -117,14 +118,22 @@ export default function AuthView({ onAuthSuccess }: { onAuthSuccess: () => void 
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300/50" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="パスワード (Password)"
                 value={password}
                 maxLength={128}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-12 text-slate-200 placeholder:text-indigo-300/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-indigo-300/50 hover:text-indigo-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-full"
+                aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示する"}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
           </div>
 
