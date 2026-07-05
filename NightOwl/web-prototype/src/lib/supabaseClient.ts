@@ -10,8 +10,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   // DO NOT mask this by ignoring the error, just pass placeholders to prevent Vite fast-refresh crashes on load.
 }
 
+// Clean the URL to remove any trailing paths like /rest/v1/ or /rest/v1
+const cleanSupabaseUrl = supabaseUrl
+  ? supabaseUrl.replace(/\/rest\/v1\/?$/, '')
+  : 'https://dummy.supabase.co';
+
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(
-  supabaseUrl || 'https://dummy.supabase.co',
+  cleanSupabaseUrl,
   supabaseAnonKey || 'dummy_anon_key'
 );
