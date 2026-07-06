@@ -8,6 +8,13 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
+    // 🛡️ Sentinel: Validate IDs to prevent PostgREST injection attacks via direct string interpolation in .or()
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId) || !uuidRegex.test(friend.id)) {
+      console.error("Invalid ID format");
+      return;
+    }
+
     const { data, error } = await supabase
       .from('direct_messages')
       .select('*')
