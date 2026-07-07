@@ -6,7 +6,8 @@ import AuthView from './components/AuthView';
 import { GateView } from './views/GateView';
 import { HomeView } from './views/HomeView';
 import { FriendChatView } from './views/FriendChatView';
-import { VoiceRoomMainView } from './views/VoiceRoomView';
+// ⚡ Bolt: Code-split VoiceRoomMainView to prevent blocking initial load with heavy Agora SDK dependency
+const VoiceRoomMainView = React.lazy(() => import('./views/VoiceRoomView').then(module => ({ default: module.VoiceRoomMainView })));
 import { MyPageView } from './views/MyPageView';
 
 export default function App() {
@@ -101,7 +102,11 @@ function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'd
         <main className="p-4 space-y-4 h-full">
           {activeTab === 'home' && <HomeView />}
           {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
-          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
+          {activeTab === 'voice' && (
+            <React.Suspense fallback={<div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div></div>}>
+              <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />
+            </React.Suspense>
+          )}
           {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
         </main>
       </div>
