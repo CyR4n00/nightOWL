@@ -12,4 +12,5 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const cleanSupabaseUrl = (supabaseUrl || '').replace(/\/rest\/v1\/?$/, '');
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(cleanSupabaseUrl, supabaseAnonKey || '');
+// When keys are missing, we fallback to a dummy URL to prevent createClient from throwing 'supabaseUrl is required' before App.tsx can render the UI boundary.
+export const supabase = createClient(cleanSupabaseUrl || 'https://dummy.supabase.co', supabaseAnonKey || 'dummy');

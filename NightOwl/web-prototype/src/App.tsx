@@ -28,6 +28,32 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const hasEnvVars = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!hasEnvVars) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gray-900 text-white">
+        <div className="bg-gray-800 p-8 rounded-xl max-w-md w-full border border-gray-700 shadow-2xl text-center space-y-4">
+          <h2 className="text-2xl font-bold text-red-400">環境変数エラー</h2>
+          <p className="text-gray-300">
+            Supabaseの接続情報が見つかりません。
+          </p>
+          <div className="text-left bg-gray-900 p-4 rounded text-sm text-gray-400">
+            <code>.env</code> ファイルに以下を設定してください：
+            <br />
+            <br />
+            <code>VITE_SUPABASE_URL=...</code>
+            <br />
+            <code>VITE_SUPABASE_ANON_KEY=...</code>
+          </div>
+          <p className="text-xs text-gray-500 mt-4">
+            自動生成スクリプト <code>node setup_env.cjs</code> を実行するか、<code>.env.example</code> をコピーして作成してください。
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     const checkTime = () => {
       const now = new Date();
