@@ -8,6 +8,11 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
+    // 🛡️ Sentinel: Validate IDs to prevent PostgREST injection via string interpolation
+    if (!/^[a-zA-Z0-9-]+$/.test(userId) || !/^[a-zA-Z0-9-]+$/.test(friend.id)) {
+      return;
+    }
+
     const { data, error } = await supabase
       .from('direct_messages')
       .select('*')
