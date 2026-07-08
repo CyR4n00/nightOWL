@@ -14,6 +14,9 @@ export default function App() {
   const [theme, setTheme] = useState<'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy'>('default');
   const [session, setSession] = useState<Session | null>(null);
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -56,6 +59,29 @@ export default function App() {
       duration: `${Math.random() * 10 + 5}s`
     })) : [];
   }, [theme]);
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white p-6">
+        <div className="bg-red-500/10 border border-red-500/50 p-8 rounded-2xl max-w-lg w-full shadow-2xl">
+          <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2">
+            ⚠️ サーバー設定エラー
+          </h2>
+          <p className="mb-4 text-slate-300">
+            Supabaseの接続情報が見つかりません。アプリケーションを起動するには、以下の手順を実行してください。
+          </p>
+          <ol className="list-decimal list-inside space-y-2 text-slate-400 mb-6 bg-black/20 p-4 rounded-xl">
+            <li><code className="text-pink-400">NightOwl/web-prototype</code> ディレクトリに <code className="text-pink-400">.env</code> ファイルを作成します。</li>
+            <li><code className="text-pink-400">.env.example</code> の内容をコピーし、Supabaseのプロジェクト情報を入力します。</li>
+            <li>開発サーバー (<code className="text-pink-400">pnpm dev</code>) を再起動します。</li>
+          </ol>
+          <div className="text-xs text-slate-500 border-t border-white/10 pt-4">
+            VITE_SUPABASE_URL または VITE_SUPABASE_ANON_KEY が設定されていません。
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
