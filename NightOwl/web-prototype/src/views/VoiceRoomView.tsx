@@ -1,131 +1,67 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
-
-
-import { Volume2, MicOff, X, Users, Globe, Music, Play, Music4, Mic, Headphones, Clock, Plus } from 'lucide-react';
+import { Mic, MicOff, X, Users, Play, Clock, Plus, Music, Music4, Volume2, Headphones } from "lucide-react";
 import { voiceRoomService } from '../lib/agora/VoiceRoomService';
-
-// Keep all voice room related views here for brevity (VoiceRoomMainView, VoiceRoomSettings, VoiceRoomView inside)
 import { supabase } from '../lib/supabaseClient';
 
-export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
-  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [bgm, setBgm] = useState<'none' | 'lofi' | 'rain' | 'fire'>('lofi');
-  const [rooms, setRooms] = useState<{id: string, title: string, users: {username: string}}[]>([]);
-  const [isHost, setIsHost] = useState(false);
-
-
+export function VoiceRoomMainView({ onActiveChange }: { onActiveChange: (active: boolean) => void }) {
+  const [activeRoom, setActiveRoom] = useState<{ id: string, bgm: string, title: string, duration: number } | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-    const fetchRooms = async () => {
-      const { data } = await supabase
-        .from('voice_rooms')
-        .select('*, users!host_id (username)')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-      if (data && mounted) setRooms(data as any);
-    };
-    fetchRooms();
-    return () => { mounted = false; };
-  }, []);
+    onActiveChange(activeRoom !== null);
+  }, [activeRoom, onActiveChange]);
 
-  const handleCloseRoom = () => {
-    setActiveRoomId(null);
-    setIsHost(false);
-    onActiveChange?.(false);
-  };
-
-  const handleJoinRoom = (roomId: string) => {
-    setIsHost(false);
-    setActiveRoomId(roomId);
-    onActiveChange?.(true);
-  };
-
-  const [initialDuration, setInitialDuration] = useState<number>(2);
-
-  const handleStartRoom = async (selectedBgm: 'none' | 'lofi' | 'rain' | 'fire', title: string, duration: number) => {
-    const session = await supabase.auth.getSession();
-    const authUser = session.data.session?.user;
-    if (!authUser) return;
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('id')
-      .eq('supabase_auth_id', authUser.id)
-      .single();
-
-    if (!userData) return;
-
-    const { data: newRoom } = await supabase
-      .from('voice_rooms')
-      .insert([{
-        host_id: userData.id,
-        title: title || '深夜の語り場',
-        bgm_track: selectedBgm
-      }])
-      .select()
-      .single();
-
-    if (newRoom) {
-      setBgm(selectedBgm);
-      setIsHost(true);
-      setActiveRoomId(newRoom.id);
-      setInitialDuration(duration);
-      setShowSettings(false);
-      onActiveChange?.(true);
-    }
-  };
-
-  if (activeRoomId) {
-    return <VoiceRoomView onClose={handleCloseRoom} initialBgm={bgm} isHost={isHost} roomId={activeRoomId} initialDurationHours={initialDuration} />;
-  }
-
-  if (showSettings) {
-    return <VoiceRoomSettings onClose={() => setShowSettings(false)} onStart={handleStartRoom} />;
+  if (activeRoom) {
+    return (
+      <VoiceRoomView
+        roomId={activeRoom.id}
+        initialBgm={activeRoom.bgm as "none" | "lofi" | "rain" | "fire"}
+        isHost={activeRoom.id.startsWith('my-room')}
+        initialDurationHours={activeRoom.duration}
+        onClose={() => setActiveRoom(null)}
+      />
+    );
   }
 
   return (
-    <div className="flex flex-col h-[100dvh] theme-default relative pb-safe w-full absolute inset-0 overflow-hidden">
-      <div className="p-4 pt-12 text-center relative z-10">
-        <h2 className="font-stencil text-4xl text-white tracking-[0.1em] mt-4 mb-4 glow-text pb-1">VOICE ROOM</h2>
-        <p className="text-xs text-white mt-2 font-stencil tracking-[0.1em]">深夜の放送局</p>
-        <div className="w-full h-[1px] bg-white/5 mt-4"></div>
-      </div>
+    <VoiceRoomLobby
+      onJoin={(id, bgm, title, duration) => setActiveRoom({ id, bgm, title, duration })}
+    />
+  );
+}
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-24 relative z-10">
-        {rooms.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-white/50 text-sm tracking-wider -mt-20">
-            <span className="text-white/60 tracking-widest text-sm">開催中のルームはありません</span>
-          </div>
-        )}
+export function VoiceRoomLobby({ onJoin }: { onJoin: (roomId: string, bgm: 'none' | 'lofi' | 'rain' | 'fire', title: string, duration: number) => void }) {
+  const [showSettings, setShowSettings] = useState(false);
+  const [rooms] = useState([
+    { id: 'room-1', title: '深夜の読書会', listeners: 12, host: 'Yuka', bgm: 'lofi', duration: 2 },
+    { id: 'room-2', title: '作業通話', listeners: 5, host: 'Ken', bgm: 'rain', duration: 1 },
+  ]);
 
+  if (showSettings) {
+    return <VoiceRoomSettings onClose={() => setShowSettings(false)} onStart={(bgm, title, duration) => {
+      onJoin(`my-room-${Date.now()}`, bgm, title, duration);
+    }} />;
+  }
+
+  return (
+    <div className="flex flex-col h-full relative p-6 pt-12 pb-24">
+      <h2 className="text-2xl font-stencil text-white tracking-[0.2em] mb-8 relative z-10 text-center opacity-80 top-0 left-0 right-0">NIGHTOWL</h2>
+
+      <div className="grid grid-cols-2 gap-4 relative z-10">
         {rooms.map(room => (
-          <div key={room.id} onClick={() => handleJoinRoom(room.id)} className="glass-panel p-4 flex flex-col gap-3 relative overflow-hidden group hover:border-indigo-500/30 transition-colors cursor-pointer">
-            <div className="absolute top-0 left-0 w-1 h-full bg-green-400" />
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-xs font-semibold text-green-400 mb-1 block">🔴 LIVE</span>
-                <h3 className="font-bold text-white/90">{room.title}</h3>
-                <p className="text-xs text-indigo-200/60 mt-1">Host: {room.users?.username}</p>
-              </div>
-              <div className="flex -space-x-2">
-                <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-white/10" />
-              </div>
-            </div>
-            <div className="flex items-center gap-3 mt-2 text-xs text-white">
-              <span className="flex items-center gap-1"><Users className="w-3 h-3" /> ?</span>
-              <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> Open</span>
-              <span className="flex items-center gap-1 ml-auto text-white/90">参加する</span>
-            </div>
+          <div key={room.id} onClick={() => onJoin(room.id, room.bgm as "none" | "lofi" | "rain" | "fire", room.title, room.duration)} className="glass-panel p-4 rounded-3xl aspect-square flex flex-col items-center justify-center text-center cursor-pointer hover:bg-white/10 transition-colors group">
+             <div className="w-16 h-16 rounded-full bg-indigo-500/20 mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+               <span className="text-lg font-bold text-indigo-300">{room.host.charAt(0)}</span>
+             </div>
+             <h3 className="font-bold text-sm text-white mb-1 line-clamp-1 font-stencil">{room.title}</h3>
+             <div className="flex items-center justify-center gap-1 text-xs text-indigo-300/80 font-stencil">
+               <Users className="w-3 h-3" /> {room.listeners}人
+             </div>
           </div>
         ))}
       </div>
 
-      {/* City skyline silhouette */}
-      <div className="absolute bottom-16 left-0 w-full h-48 opacity-40 pointer-events-none z-0" style={{
-         backgroundImage: 'url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxNDQwIDMyMCc+PHBhdGggZmlsbD0nJTIzMGYxNzJhJyBmaWxsLW9wYWNpdHk9JzEnIGQ9J00wLDI1Nkw0OCwyNDUuM0M5NiwyMzUsMTkyLDIxMywyODgsMjE4LjdDMzg0LDIyNCw0ODAsMjU2LDU3NiwyNjEuM0M2NzIsMjY3LDc2OCwyNDUsODY0LDIxMy4zQzk2MCwxODEsMTA1NiwxMzksMTE1MiwxNDRDMTI0OCwxNDksMTM0NCwyMDMsMTM5MiwyMjkuM0wxNDQwLDI1NkwxNDQwLDMyMEwxMzkyLDMyMEMxMzQ0LDMyMCwxMjQ4LDMyMCwxMTUyLDMyMEMxMDU2LDMyMCw5NjAsMzIwLDg2NCwzMjBDNzY4LDMyMCw2NzIsMzIwLDU3NiwzMjBDNDgwLDMyMCwzODQsMzIwLDI4OCwzMjBDMTkyLDMyMCw5NiwzMjAsNDgsMzIwTDAsMzIwWic+PC9wYXRoPjxwYXRoIGZpbGw9JyUyMzFlMjkzYicgZmlsbC1vcGFjaXR5PScxJyBkPSdNMCwxOTJMNjAsMjA4QzEyMCwyMjQsMjQwLDI1NiwzNjAsMjQwQzQ4MCwyMjQsNjAwLDE2MCw3MjAsMTM4LjdDODQwLDExNyw5NjAsMTM5LDEwODAsMTQ5LjNDMTIwMCwxNjAsMTMyMCwxNjAsMTM4MCwxNjBMMTQ0MCwxNjBMMTQ0MCwzMjBMMTM4MCwzMjBDMTMyMCwzMjAsMTIwMCwzMjAsMTA4MCwzMjBDOTYwLDMyMCw4NDAsMzIwLDcyMCwzMjBDNjAwLDMyMCw0ODAsMzIwLDM2MCwzMjBDMjQwLDMyMCwxMjAsMzIwLDYwLDMyMEwwLDMyMFonPjwvcGF0aD48L3N2Zz4=")',
+      <div className="absolute inset-0 opacity-40 z-0 pointer-events-none" style={{
+         backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 320 320\'%3E%3Cpath fill=\'%23ffffff\' fill-opacity=\'0.05\' d=\'M0,320L60,320C120,320,240,320,300,320L360,320L360,360L300,360C240,360,120,360,60,360L0,360Z\'%3E%3C/path%3E%3Cpath fill=\'%23ffffff\' fill-opacity=\'0.03\' d=\'M0,320L60,320C120,320,240,320,300,320L360,320L360,360L300,360C240,360,120,360,60,360L0,360Z\'%3E%3C/path%3E%3C/svg%3E")',
          backgroundSize: 'cover',
          backgroundPosition: 'bottom'
       }}></div>
@@ -160,7 +96,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
       <div className="flex-1 overflow-y-auto p-6 space-y-8 relative z-10">
         <div>
            <label className="text-xs text-white font-stencil mb-2 block">ルーム名</label>
-           <input type="text" placeholder="深夜の読書会..." value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-indigo-500/50" />
+           <input type="text" placeholder="深夜の読書会..." value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-indigo-500/50 text-white" />
         </div>
 
         <div>
@@ -203,13 +139,13 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
               onChange={e => setDuration(parseInt(e.target.value))}
               className="flex-1 accent-indigo-500"
             />
-            <span className="w-16 text-right font-bold text-white/90">{duration} 時間</span>
+            <span className="w-16 text-right font-bold text-white/90 font-stencil">{duration} 時間</span>
           </div>
         </div>
 
         <button
           onClick={() => onStart(bgm, title, duration)}
-          className="w-full p-4 rounded-xl bg-indigo-600 font-bold tracking-wider hover:bg-indigo-500 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.4)]"
+          className="w-full p-4 rounded-xl bg-indigo-600 font-bold tracking-wider hover:bg-indigo-500 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.4)] text-white font-stencil"
         >
           配信を開始する
         </button>
@@ -219,7 +155,7 @@ function VoiceRoomSettings({ onClose, onStart }: { onClose: () => void, onStart:
 }
 
 
-function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, initialDurationHours = 2 }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire', isHost?: boolean, roomId: string, initialDurationHours?: number }) {
+export function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, initialDurationHours = 2 }: { onClose: () => void, initialBgm?: 'none' | 'lofi' | 'rain' | 'fire', isHost?: boolean, roomId: string, initialDurationHours?: number }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
   const [timeLeft, setTimeLeft] = useState<number>(60 * 60 * initialDurationHours);
@@ -347,7 +283,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
                  <button
                    onClick={toggleMute}
                    disabled={isConnecting}
-                   className={`flex-1 p-4 rounded-xl flex items-center justify-center gap-2 transition-colors ${isMuted ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-white/10 text-white/90 border border-white/20'}`}
+                   className={`flex-1 p-4 rounded-xl flex items-center justify-center gap-2 transition-colors font-stencil ${isMuted ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-white/10 text-white/90 border border-white/20'}`}
                  >
                      {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                      {isMuted ? "ミュート解除" : "ミュート"}
@@ -355,7 +291,7 @@ function VoiceRoomView({ onClose, initialBgm = 'lofi', isHost = true, roomId, in
              )}
              <button
                onClick={onClose}
-               className="flex-1 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 transition-all font-medium flex items-center justify-center gap-2"
+               className="flex-1 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 transition-all font-medium flex items-center justify-center gap-2 font-stencil"
              >
                 <X className="w-5 h-5" /> 退室する
              </button>

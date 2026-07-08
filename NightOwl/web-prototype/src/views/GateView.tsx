@@ -33,6 +33,8 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] text-center p-6 bg-slate-950 font-sans absolute inset-0 z-50 theme-default pb-safe">
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm mt-12">
+        <h1 className="text-2xl font-stencil text-white tracking-[0.2em] mb-12 opacity-80 mt-[-10vh] absolute top-12 left-1/2 -translate-x-1/2">NIGHTOWL</h1>
+
         <div className="relative w-48 h-48 mb-8">
           <div className="absolute inset-0 bg-yellow-200/20 blur-3xl rounded-full" />
           <div className="w-full h-full rounded-full shadow-[0_0_50px_rgba(255,255,200,0.4)] overflow-hidden">
@@ -41,9 +43,7 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
           </div>
         </div>
 
-        <h1 className="text-4xl font-stencil text-white tracking-[0.2em] mb-2 glow-text mt-4">NIGHTOWL</h1>
-
-        <p className="text-white/80 mb-6 tracking-[0.2em] text-sm font-light">
+        <p className="text-white/80 mb-6 tracking-[0.2em] text-sm font-light mt-4">
           夜が来るまで、あとすこし
         </p>
 
@@ -55,7 +55,7 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
             <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
           </div>
           <div className="flex items-center justify-center w-64 mt-4">
-             <div className="px-4 py-1 rounded-full bg-white/10 flex items-center gap-2 border border-white/20">
+             <div className="px-4 py-1.5 rounded-full bg-white/10 flex items-center gap-2 border border-white/20">
                 <Lock className="w-3 h-3 text-white/70" />
                 <span className="text-[11px] text-white/80 font-numbers tracking-[0.1em]">
                   {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}
