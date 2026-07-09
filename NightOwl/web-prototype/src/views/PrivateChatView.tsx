@@ -48,8 +48,26 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         // Setup realtime subscription
         subscription = supabase
           .channel(`dm:${userData.id}:${friend.id}`)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, () => {
-             fetchMessages(userData.id);
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, (payload) => {
+             // ⚡ Bolt: Optimize realtime updates to prevent O(N) refetch on every insert
+             const newMsg = payload.new as any;
+
+             // Check if message belongs to this conversation
+             if (
+               (newMsg.sender_id === userData.id && newMsg.receiver_id === friend.id) ||
+               (newMsg.sender_id === friend.id && newMsg.receiver_id === userData.id)
+             ) {
+               setMessages(prev => {
+                 // Prevent duplicate inserts if we already added it optimistically
+                 if (prev.some(m => m.id === newMsg.id)) return prev;
+                 return [...prev, {
+                   id: newMsg.id,
+                   isMe: newMsg.sender_id === userData.id,
+                   text: newMsg.content,
+                   time: new Date(newMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                 }].slice(-50); // Keep max 50 items (we append so slice from end)
+               });
+             }
           })
           .subscribe();
       }
