@@ -9,26 +9,13 @@ import { FriendChatView } from './views/FriendChatView';
 import { VoiceRoomMainView } from './views/VoiceRoomView';
 import { MyPageView } from './views/MyPageView';
 
-export default function App() {
-  const [isNightTime, setIsNightTime] = useState(false);
-  const [theme, setTheme] = useState<'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy'>('default');
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const hasEnvVars = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+export default function AppWrapper() {
+  const hasEnvVars = Boolean(
+    import.meta.env.VITE_SUPABASE_URL &&
+    import.meta.env.VITE_SUPABASE_ANON_KEY &&
+    !import.meta.env.VITE_SUPABASE_URL.includes('your-project-url') &&
+    import.meta.env.VITE_SUPABASE_URL !== 'https://dummy.supabase.co'
+  );
 
   if (!hasEnvVars) {
     return (
@@ -53,6 +40,28 @@ export default function App() {
       </div>
     );
   }
+
+  return <App />;
+}
+
+function App() {
+  const [isNightTime, setIsNightTime] = useState(false);
+  const [theme, setTheme] = useState<'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy'>('default');
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const checkTime = () => {
