@@ -6,8 +6,10 @@
 export class RevenueCatService {
     private isInitialized = false;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async initialize(apiKey: string) {
-        console.log(`Initializing RevenueCat with API Key: ${apiKey}`);
+        // 🛡️ Sentinel: Removed logging of raw API key to prevent information disclosure in client console.
+        console.log("Initializing RevenueCat...");
         // Purchases.configure({ apiKey });
         this.isInitialized = true;
     }
@@ -40,6 +42,7 @@ export class RevenueCatService {
         return true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
     async checkPremiumStatus(_customerInfo?: any): Promise<boolean> {
         console.log("Checking user premium status...");
         // return _customerInfo?.entitlements.active['premium'] !== undefined;
