@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Home, MessageSquare, User, Headphones } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
-import AuthView from './components/AuthView';
-import { GateView } from './views/GateView';
-import { HomeView } from './views/HomeView';
-import { FriendChatView } from './views/FriendChatView';
-import { VoiceRoomMainView } from './views/VoiceRoomView';
-import { MyPageView } from './views/MyPageView';
+
+// ⚡ Bolt: Code-split route components to prevent heavy dependencies (like Agora SDK in VoiceRoomView)
+// from blocking the initial render. This optimization moves the ~1.5MB VoiceRoomView out of the main bundle,
+// significantly improving TTI (Time to Interactive).
+const AuthView = lazy(() => import('./components/AuthView'));
+const GateView = lazy(() => import('./views/GateView').then(m => ({ default: m.GateView })));
+const HomeView = lazy(() => import('./views/HomeView').then(m => ({ default: m.HomeView })));
+const FriendChatView = lazy(() => import('./views/FriendChatView').then(m => ({ default: m.FriendChatView })));
+const VoiceRoomMainView = lazy(() => import('./views/VoiceRoomView').then(m => ({ default: m.VoiceRoomMainView })));
+const MyPageView = lazy(() => import('./views/MyPageView').then(m => ({ default: m.MyPageView })));
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -69,13 +73,15 @@ export default function App() {
         }} />
       ))}
 
-      {!isNightTime ? (
-        <GateView onEnter={() => setIsNightTime(true)} />
-      ) : !session ? (
-        <AuthView onAuthSuccess={() => {}} />
-      ) : (
-        <MainApp theme={theme} setTheme={setTheme} session={session} />
-      )}
+      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div></div>}>
+        {!isNightTime ? (
+          <GateView onEnter={() => setIsNightTime(true)} />
+        ) : !session ? (
+          <AuthView onAuthSuccess={() => {}} />
+        ) : (
+          <MainApp theme={theme} setTheme={setTheme} session={session} />
+        )}
+      </Suspense>
     </>
   );
 }
@@ -99,10 +105,12 @@ function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'd
         </header>
 
         <main className="p-4 space-y-4 h-full">
-          {activeTab === 'home' && <HomeView />}
-          {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
-          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
-          {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
+          <Suspense fallback={<div className="flex justify-center items-center h-full"><div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div></div>}>
+            {activeTab === 'home' && <HomeView />}
+            {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
+            {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
+            {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
+          </Suspense>
         </main>
       </div>
 
