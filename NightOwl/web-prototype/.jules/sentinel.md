@@ -12,3 +12,8 @@
 **Vulnerability:** Raw database and backend service error objects (e.g. Supabase and Agora errors) were being logged directly to the client-side console using console.error and console.warn.
 **Learning:** Even if errors are not shown in the UI, exposing raw error objects in the browser console can leak sensitive database schema details, PostgREST internal states, or service configuration that attackers can use to craft targeted exploits.
 **Prevention:** Always sanitize error logs on the client. Use generic string messages for console outputs in production code instead of passing the raw error object.
+
+## 2026-06-25 - [Credential Disclosure via Logging]
+**Vulnerability:** The RevenueCat API key was being logged directly to the client console during service initialization in `RevenueCatService.ts`.
+**Learning:** Logging API keys or other credentials to the client console exposes them to end users and potential attackers, leading to unauthorized use of paid services.
+**Prevention:** Avoid logging credentials. When debugging initialization processes, log generic messages instead of raw values (e.g., `Initializing service...`). Use environment variables for client-side keys and never output their values directly.
