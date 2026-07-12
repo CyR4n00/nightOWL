@@ -48,8 +48,31 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         // Setup realtime subscription
         subscription = supabase
           .channel(`dm:${userData.id}:${friend.id}`)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, () => {
-             fetchMessages(userData.id);
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, (payload) => {
+             // ⚡ Bolt: O(1) Local State Update - Prevent O(N) refetch on every insert
+             // Also implemented client-side verification to ensure the payload belongs to the current conversation context
+             const newMsg = payload.new;
+             if (
+               (newMsg.sender_id === userData.id && newMsg.receiver_id === friend.id) ||
+               (newMsg.sender_id === friend.id && newMsg.receiver_id === userData.id)
+             ) {
+               setMessages(prev => {
+                 // Check if message already exists to avoid duplicates
+                 if (prev.some(m => m.id === newMsg.id)) return prev;
+
+                 const formattedMsg = {
+                   id: newMsg.id,
+                   isMe: newMsg.sender_id === userData.id,
+                   text: newMsg.content,
+                   time: new Date(newMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                 };
+                 // Since the list is reversed for rendering (newest at bottom), prepend the new message
+                 // Wait, original fetchMessages does data.reverse().
+                 // If data is ordered by created_at desc (newest first), reverse makes it oldest first.
+                 // So we should append to the end.
+                 return [...prev, formattedMsg];
+               });
+             }
           })
           .subscribe();
       }
