@@ -5,3 +5,6 @@
 ## 2024-06-25 - Prevent Premature Submission on Enter Key with IME
 **Learning:** When using Japanese IME (Input Method Editor), pressing the 'Enter' key to finalize character conversion triggers an `onKeyDown` event with `e.key === 'Enter'`. If a text input has a simple `if (e.key === 'Enter')` check to submit the form, this will cause the form to submit prematurely before the user finishes typing.
 **Action:** Always check `!e.nativeEvent.isComposing` inside `onKeyDown` event listeners for text inputs when listening for the 'Enter' key to ensure submission only occurs when the user actually intends to submit, not while composing characters.
+## 2024-07-13 - [Aria Labels for Placeholder-Only Inputs]
+**Learning:** Text inputs that rely completely on `placeholder` attributes for instruction (like the Auth form inputs in this app) are not adequately announced by screen readers, failing to provide context to visually impaired users.
+**Action:** Always add descriptive `aria-label` attributes to inputs that lack an explicit `<label>` element. Furthermore, when adding interactive absolute-positioned elements (like a password visibility toggle) inside an input container, ensure that the input receives appropriate right-padding (`pr-12`) so text does not flow underneath the icon.
