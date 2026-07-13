@@ -6,8 +6,9 @@ import AuthView from './components/AuthView';
 import { GateView } from './views/GateView';
 import { HomeView } from './views/HomeView';
 import { FriendChatView } from './views/FriendChatView';
-import { VoiceRoomMainView } from './views/VoiceRoomView';
 import { MyPageView } from './views/MyPageView';
+
+const VoiceRoomMainView = React.lazy(() => import('./views/VoiceRoomView').then(module => ({ default: module.VoiceRoomMainView })));
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -101,7 +102,11 @@ function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'd
         <main className="p-4 space-y-4 h-full">
           {activeTab === 'home' && <HomeView />}
           {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
-          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
+          {activeTab === 'voice' && (
+            <React.Suspense fallback={<div className="text-center text-indigo-300 mt-10 animate-pulse">Loading...</div>}>
+              <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />
+            </React.Suspense>
+          )}
           {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
         </main>
       </div>
