@@ -8,15 +8,14 @@ export class RevenueCatService {
 
     async initialize(apiKey: string) {
         console.log(`Initializing RevenueCat with API Key: ${apiKey}`);
-        // Purchases.configure({ apiKey });
+        // TODO: Implement actual RevenueCat SDK calls here
         this.isInitialized = true;
     }
 
     async getOfferings() {
         if (!this.isInitialized) throw new Error("RevenueCat not initialized");
         console.log("Fetching offerings from RevenueCat...");
-        // const offerings = await Purchases.getOfferings();
-        // return offerings;
+        // TODO: Implement actual RevenueCat SDK calls here
         return [
             {
                 id: "premium_monthly",
@@ -28,21 +27,16 @@ export class RevenueCatService {
 
     async purchasePackage(packageId: string) {
         console.log(`Attempting to purchase package: ${packageId}`);
-        // try {
-        //     const { customerInfo } = await Purchases.purchasePackage(packageId);
-        //     return this.checkPremiumStatus(customerInfo);
-        // } catch (e) {
-        //     console.error("Purchase failed", e);
-        //     return false;
-        // }
+        // TODO: Implement actual RevenueCat SDK calls here
 
         // Mock success
         return true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     async checkPremiumStatus(_customerInfo?: any): Promise<boolean> {
         console.log("Checking user premium status...");
-        // return _customerInfo?.entitlements.active['premium'] !== undefined;
+        // TODO: Implement actual RevenueCat SDK calls here
         return false; // Default to free for now
     }
 }
