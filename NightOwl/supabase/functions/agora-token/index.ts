@@ -5,12 +5,30 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import pkg from "npm:agora-access-token@2.0.4";
 const { RtcTokenBuilder, RtcRole } = pkg;
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+// 🛡️ Sentinel: Generate dynamic CORS headers to restrict allowed origins instead of using wildcard '*'
+const getCorsHeaders = (req: Request) => {
+  const origin = req.headers.get("Origin");
+  const allowedOriginsStr = Deno.env.get("ALLOWED_ORIGINS");
+  let allowOrigin = "null"; // Default safe fallback
+
+  if (allowedOriginsStr) {
+    const allowedOrigins = allowedOriginsStr.split(",").map((o) => o.trim());
+    if (origin && allowedOrigins.includes(origin)) {
+      allowOrigin = origin;
+    } else if (allowedOrigins.length > 0) {
+      allowOrigin = allowedOrigins[0];
+    }
+  }
+
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
 };
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
