@@ -70,14 +70,6 @@ export function GateView({ onEnter }: { onEnter: () => void }) {
              <div className="absolute inset-0 rounded-3xl shadow-[0_0_10px_rgba(255,255,255,0.5)] pointer-events-none border border-white/50"></div>
           </div>
         </div>
-
-        {/* Debug bypass button for testing - Made prominent for the user */}
-        <button
-          onClick={onEnter}
-          className="mt-8 px-6 py-3 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 rounded-2xl text-indigo-200 font-bold tracking-widest transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] active:scale-95 text-xs opacity-50 hover:opacity-100"
-        >
-          🔧 デバッグ用強制起動
-        </button>
       </div>
     </div>
   );
