@@ -12,3 +12,8 @@
 **Vulnerability:** Raw database and backend service error objects (e.g. Supabase and Agora errors) were being logged directly to the client-side console using console.error and console.warn.
 **Learning:** Even if errors are not shown in the UI, exposing raw error objects in the browser console can leak sensitive database schema details, PostgREST internal states, or service configuration that attackers can use to craft targeted exploits.
 **Prevention:** Always sanitize error logs on the client. Use generic string messages for console outputs in production code instead of passing the raw error object.
+
+## 2025-02-14 - Fix Overly Permissive CORS Policy in Edge Function
+**Vulnerability:** The Supabase Agora Token edge function used a wildcard `*` for the `Access-Control-Allow-Origin` header, allowing any origin to request WebRTC tokens.
+**Learning:** Hardcoding wildcards or development ports bypasses CORS protections in production, risking abuse of the token generation endpoint by unauthorized domains.
+**Prevention:** Always implement dynamic origin validation against a configurable environment variable (e.g., `ALLOWED_ORIGINS`) and fail closed (e.g., fallback to `'null'`) for unrecognized origins.
