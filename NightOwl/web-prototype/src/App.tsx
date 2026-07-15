@@ -4,10 +4,11 @@ import { supabase } from './lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
 import AuthView from './components/AuthView';
 import { GateView } from './views/GateView';
-import { HomeView } from './views/HomeView';
-import { FriendChatView } from './views/FriendChatView';
-import { VoiceRoomMainView } from './views/VoiceRoomView';
-import { MyPageView } from './views/MyPageView';
+
+const HomeView = React.lazy(() => import('./views/HomeView').then(module => ({ default: module.HomeView })));
+const FriendChatView = React.lazy(() => import('./views/FriendChatView').then(module => ({ default: module.FriendChatView })));
+const VoiceRoomMainView = React.lazy(() => import('./views/VoiceRoomView').then(module => ({ default: module.VoiceRoomMainView })));
+const MyPageView = React.lazy(() => import('./views/MyPageView').then(module => ({ default: module.MyPageView })));
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -99,10 +100,13 @@ function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'd
         </header>
 
         <main className="p-4 space-y-4 h-full">
-          {activeTab === 'home' && <HomeView />}
-          {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
-          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
-          {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
+          {/* ⚡ Bolt: Code-split main views with React.lazy and Suspense to reduce initial bundle size and speed up initial load time */}
+          <React.Suspense fallback={<div className="flex items-center justify-center h-full text-indigo-300 animate-pulse">読み込み中...</div>}>
+            {activeTab === 'home' && <HomeView />}
+            {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
+            {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
+            {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
+          </React.Suspense>
         </main>
       </div>
 
