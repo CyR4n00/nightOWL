@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 
 import { User, Lock, Settings2, Camera, Music, Play, Music4 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import type { Session } from '@supabase/supabase-js';
 
-export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }: { isPremium: boolean, setIsPremium: (v: boolean) => void, theme: string, setTheme: (t: any) => void, session: any }) {
+export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }: { isPremium: boolean, setIsPremium: (v: boolean) => void, theme: string, setTheme: (t: 'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy') => void, session: Session | null }) {
   const [showPast, setShowPast] = useState(false);
   const [userIcon, setUserIcon] = useState<string | null>(null);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
@@ -19,7 +20,7 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
   };
 
   if (showThemeSettings) {
-    const themes = [
+    const themes: { id: 'default' | 'aurora' | 'deepsea' | 'dusk' | 'galaxy', name: string }[] = [
       { id: 'default', name: '星空 (Night Sky)' },
       { id: 'aurora', name: 'オーロラ (Aurora)' },
       { id: 'deepsea', name: '深海 (Deep Sea)' },
