@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, MessageSquare, User, Headphones } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
@@ -8,6 +8,16 @@ import { HomeView } from './views/HomeView';
 import { FriendChatView } from './views/FriendChatView';
 import { VoiceRoomMainView } from './views/VoiceRoomView';
 import { MyPageView } from './views/MyPageView';
+
+// ⚡ Bolt: Cache deepsea bubbles outside of the component to prevent recreating the array
+// and re-evaluating random values every time the component renders or theme changes.
+const DEEPSEA_BUBBLES = Array.from({ length: 15 }).map((_, i) => ({
+  id: i,
+  left: `${Math.random() * 100}%`,
+  size: `${Math.random() * 20 + 10}px`,
+  delay: `${Math.random() * 5}s`,
+  duration: `${Math.random() * 10 + 5}s`
+}));
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -43,23 +53,9 @@ export default function App() {
     document.body.className = `theme-${theme}`;
   }, [theme]);
 
-  const bubbles = useMemo(() => {
-    return theme === 'deepsea' ? Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      // eslint-disable-next-line react-hooks/purity
-      left: `${Math.random() * 100}%`,
-      // eslint-disable-next-line react-hooks/purity
-      size: `${Math.random() * 20 + 10}px`,
-      // eslint-disable-next-line react-hooks/purity
-      delay: `${Math.random() * 5}s`,
-      // eslint-disable-next-line react-hooks/purity
-      duration: `${Math.random() * 10 + 5}s`
-    })) : [];
-  }, [theme]);
-
   return (
     <>
-      {theme === 'deepsea' && bubbles.map(b => (
+      {theme === 'deepsea' && DEEPSEA_BUBBLES.map(b => (
         <div key={b.id} className="bubble" style={{
           left: b.left,
           width: b.size,
