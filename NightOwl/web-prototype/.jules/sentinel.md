@@ -12,3 +12,7 @@
 **Vulnerability:** Raw database and backend service error objects (e.g. Supabase and Agora errors) were being logged directly to the client-side console using console.error and console.warn.
 **Learning:** Even if errors are not shown in the UI, exposing raw error objects in the browser console can leak sensitive database schema details, PostgREST internal states, or service configuration that attackers can use to craft targeted exploits.
 **Prevention:** Always sanitize error logs on the client. Use generic string messages for console outputs in production code instead of passing the raw error object.
+## 2025-02-19 - Prevent SQL Injection via Template Literals in Supabase .or()
+**Vulnerability:** Constructing Supabase `.or()` queries using raw string interpolation (e.g., `.or(\`and(sender_id.eq.${userId})...\`)`) introduces SQL injection vectors because the string is not parameterized by the client library.
+**Learning:** Supabase's JS client `.or()` method accepts a raw PostgREST string without built-in parameterized variables. Dynamically building this string with untrusted inputs exposes the query. Additionally, attempting to fix this with `.in('sender', [A,B]).in('receiver', [A,B])` inadvertently creates a Cartesian product (matching self-messages).
+**Prevention:** Avoid string interpolation in `.or()`. Instead, execute separate, parameterized `.eq()` queries concurrently using `Promise.all()`, then combine, sort, and slice the results client-side.

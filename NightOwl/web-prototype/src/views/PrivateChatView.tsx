@@ -1,33 +1,60 @@
-import { useState, useEffect, memo, useMemo } from "react";
+import { useState, useEffect, memo, useMemo, useCallback } from "react";
 import { Send, User } from 'lucide-react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabaseClient';
 
+type ChatMessage = {
+  id: string;
+  isMe: boolean;
+  text: string;
+  time: string;
+};
+
 export function PrivateChatView({ friend, onClose }: { friend: { id: string, name: string, status: string }, onClose: () => void }) {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMsg, setNewMsg] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const fetchMessages = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('direct_messages')
-      .select('*')
-      .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
-      .order('created_at', { ascending: false })
-      .limit(50);
+  const fetchMessages = useCallback(async (userId: string) => {
+    // 🛡️ Sentinel: Prevent SQL injection by avoiding string interpolation in .or().
+    // Execute two separate .eq() queries concurrently to avoid Cartesian product (self-messages) from .in()
+    const [sentResponse, receivedResponse] = await Promise.all([
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', userId)
+        .eq('receiver_id', friend.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', friend.id)
+        .eq('receiver_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50)
+    ]);
 
-    if (data) {
-      setMessages(data.reverse().map(msg => ({
+    const sentData = sentResponse.data || [];
+    const receivedData = receivedResponse.data || [];
+
+    const combinedData = [...sentData, ...receivedData]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 50);
+
+    if (sentResponse.data || receivedResponse.data) {
+      setMessages(combinedData.reverse().map(msg => ({
         id: msg.id,
         isMe: msg.sender_id === userId,
         text: msg.content,
         time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       })));
     }
-  };
+  }, [friend.id]);
 
   useEffect(() => {
     let isSubscribed = true;
-    let subscription: any = null;
+    let subscription: RealtimeChannel | null = null;
 
     const initialize = async () => {
       const session = await supabase.auth.getSession();
@@ -63,7 +90,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
         supabase.removeChannel(subscription);
       }
     };
-  }, [friend.id]);
+  }, [friend.id, fetchMessages]);
 
   const handleSend = async () => {
     if (!newMsg.trim() || !currentUserId) return;
@@ -138,7 +165,7 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   );
 }
 
-const MessageItem = memo(({ msg }: { msg: any }) => (
+const MessageItem = memo(({ msg }: { msg: ChatMessage }) => (
   <div className={`flex flex-col gap-1 max-w-[80%] ${msg.isMe ? 'self-end items-end' : 'self-start items-start'}`}>
     <div className={`p-3 rounded-2xl ${msg.isMe ? 'bg-indigo-600/80 text-white rounded-tr-sm' : 'glass-panel rounded-tl-sm text-white/90'}`}>
       <p className="text-sm leading-relaxed">{msg.text}</p>
