@@ -6,8 +6,8 @@
 export class RevenueCatService {
     private isInitialized = false;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async initialize(apiKey: string) {
-        console.log(`Initializing RevenueCat with API Key: ${apiKey}`);
         // Purchases.configure({ apiKey });
         this.isInitialized = true;
     }
@@ -40,9 +40,10 @@ export class RevenueCatService {
         return true;
     }
 
-    async checkPremiumStatus(_customerInfo?: any): Promise<boolean> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    async checkPremiumStatus(customerInfo?: any): Promise<boolean> {
         console.log("Checking user premium status...");
-        // return _customerInfo?.entitlements.active['premium'] !== undefined;
+        // return customerInfo?.entitlements.active['premium'] !== undefined;
         return false; // Default to free for now
     }
 }
