@@ -4,3 +4,6 @@
 ## 2024-06-25 - Prevent O(N) re-renders on keystrokes in list components
 **Learning:** In React, coupling high-frequency text input state (like chat input) with unmemoized `.map()` list renderings causes severe UI thrashing, as the entire list of N elements is re-created on every keystroke. Wrapping child elements in `React.memo` is insufficient because the parent still re-computes the array map and performs N prop comparisons.
 **Action:** Always wrap `.map()` list generation inside a `useMemo` hook, caching the generated JSX array against the raw data array dependency, ensuring O(1) list reconciliation during input typing.
+## 2024-06-25 - React.lazy for large route components
+**Learning:** Found that importing heavy route components (like `VoiceRoomView` with `agora-rtc-sdk-ng`) directly causes the main bundle size to explode, leading to Vite build warnings and slow initial load times for users who aren't even visiting those routes.
+**Action:** Always use `React.lazy()` and `React.Suspense` to code-split large route components. For named exports, use the pattern `const Comp = lazy(() => import('./Path').then(module => ({ default: module.Comp })))`.
