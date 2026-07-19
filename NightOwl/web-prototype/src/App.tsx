@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { Home, MessageSquare, User, Headphones } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
@@ -6,8 +6,10 @@ import AuthView from './components/AuthView';
 import { GateView } from './views/GateView';
 import { HomeView } from './views/HomeView';
 import { FriendChatView } from './views/FriendChatView';
-import { VoiceRoomMainView } from './views/VoiceRoomView';
 import { MyPageView } from './views/MyPageView';
+
+// ⚡ Bolt: Code-split VoiceRoomMainView and its heavy Agora RTC SDK dependency to reduce initial bundle size (~1.96MB down to ~430KB)
+const VoiceRoomMainView = lazy(() => import('./views/VoiceRoomView').then(module => ({ default: module.VoiceRoomMainView })));
 
 export default function App() {
   const [isNightTime, setIsNightTime] = useState(false);
@@ -101,7 +103,11 @@ function MainApp({ theme, setTheme, session }: { theme: string, setTheme: (t: 'd
         <main className="p-4 space-y-4 h-full">
           {activeTab === 'home' && <HomeView />}
           {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
-          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
+          {activeTab === 'voice' && (
+            <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="text-indigo-300 animate-pulse">Loading...</div></div>}>
+              <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />
+            </Suspense>
+          )}
           {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
         </main>
       </div>
