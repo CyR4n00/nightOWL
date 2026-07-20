@@ -8,15 +8,30 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
-    const { data, error } = await supabase
+    const sentPromise = supabase
       .from('direct_messages')
       .select('*')
-      .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
+      .eq('sender_id', userId)
+      .eq('receiver_id', friend.id)
       .order('created_at', { ascending: false })
       .limit(50);
 
-    if (data) {
-      setMessages(data.reverse().map(msg => ({
+    const receivedPromise = supabase
+      .from('direct_messages')
+      .select('*')
+      .eq('sender_id', friend.id)
+      .eq('receiver_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    const [sentResponse, receivedResponse] = await Promise.all([sentPromise, receivedPromise]);
+
+    if (sentResponse.data && receivedResponse.data) {
+      const combined = [...sentResponse.data, ...receivedResponse.data]
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 50);
+
+      setMessages(combined.reverse().map(msg => ({
         id: msg.id,
         isMe: msg.sender_id === userId,
         text: msg.content,
