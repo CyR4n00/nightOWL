@@ -8,14 +8,28 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('direct_messages')
-      .select('*')
-      .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
-      .order('created_at', { ascending: false })
-      .limit(50);
+    // 🛡️ Sentinel: Fixed PostgREST injection vulnerability by replacing .or() string interpolation with concurrent parameterized queries.
+    const [sentMessages, receivedMessages] = await Promise.all([
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', userId)
+        .eq('receiver_id', friend.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', friend.id)
+        .eq('receiver_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50)
+    ]);
 
-    if (data) {
+    if (sentMessages.data && receivedMessages.data) {
+      const combined = [...sentMessages.data, ...receivedMessages.data];
+      combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      const data = combined.slice(0, 50);
       setMessages(data.reverse().map(msg => ({
         id: msg.id,
         isMe: msg.sender_id === userId,
