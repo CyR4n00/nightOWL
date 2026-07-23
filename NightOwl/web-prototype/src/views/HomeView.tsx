@@ -37,8 +37,42 @@ export function HomeView() {
     // Setup realtime subscription
     const subscription = supabase
       .channel('public:posts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-        fetchPosts();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const { data, error } = await supabase
+            .from('posts')
+            .select('*, users!user_id ( username, display_name )')
+            .eq('id', payload.new.id)
+            .single();
+
+          if (data && !error) {
+            const newPost = {
+              id: data.id,
+              user: data.users?.username || 'unknown',
+              content: data.content,
+              time: new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            setPosts(prev => [newPost, ...prev]);
+          }
+        } else if (payload.eventType === 'UPDATE') {
+          const { data, error } = await supabase
+            .from('posts')
+            .select('*, users!user_id ( username, display_name )')
+            .eq('id', payload.new.id)
+            .single();
+
+          if (data && !error) {
+            const updatedPost = {
+              id: data.id,
+              user: data.users?.username || 'unknown',
+              content: data.content,
+              time: new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            setPosts(prev => prev.map(post => post.id === updatedPost.id ? updatedPost : post));
+          }
+        } else if (payload.eventType === 'DELETE') {
+          setPosts(prev => prev.filter(post => post.id !== payload.old.id));
+        }
       })
       .subscribe();
 
