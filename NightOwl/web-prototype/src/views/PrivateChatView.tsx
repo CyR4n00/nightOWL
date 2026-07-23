@@ -8,21 +8,38 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('direct_messages')
-      .select('*')
-      .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
-      .order('created_at', { ascending: false })
-      .limit(50);
+    // 🛡️ Sentinel: Replaced vulnerable string interpolation in .or() with
+    // safe, parameterized queries using Promise.all to prevent PostgREST injection.
+    const [sentResponse, receivedResponse] = await Promise.all([
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', userId)
+        .eq('receiver_id', friend.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', friend.id)
+        .eq('receiver_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50)
+    ]);
 
-    if (data) {
-      setMessages(data.reverse().map(msg => ({
-        id: msg.id,
-        isMe: msg.sender_id === userId,
-        text: msg.content,
-        time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      })));
-    }
+    const sentData = sentResponse.data || [];
+    const receivedData = receivedResponse.data || [];
+
+    const combinedData = [...sentData, ...receivedData]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 50);
+
+    setMessages(combinedData.reverse().map(msg => ({
+      id: msg.id,
+      isMe: msg.sender_id === userId,
+      text: msg.content,
+      time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    })));
   };
 
   useEffect(() => {
