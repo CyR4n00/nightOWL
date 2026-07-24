@@ -1,0 +1,42 @@
+--- NightOwl/web-prototype/src/App.tsx
++++ NightOwl/web-prototype/src/App.tsx
+@@ -1,13 +1,18 @@
+-import React, { useState, useEffect, useMemo } from 'react';
++import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+ import { Home, MessageSquare, User, Headphones } from 'lucide-react';
+ import { supabase } from './lib/supabaseClient';
+ import type { Session } from '@supabase/supabase-js';
+ import AuthView from './components/AuthView';
+ import { GateView } from './views/GateView';
+-import { HomeView } from './views/HomeView';
+-import { FriendChatView } from './views/FriendChatView';
+-import { VoiceRoomMainView } from './views/VoiceRoomView';
+-import { MyPageView } from './views/MyPageView';
++
++// Lazy load route components to reduce initial bundle size (especially Agora SDK in VoiceRoomView)
++const HomeView = lazy(() => import('./views/HomeView').then(module => ({ default: module.HomeView })));
++const FriendChatView = lazy(() => import('./views/FriendChatView').then(module => ({ default: module.FriendChatView })));
++const VoiceRoomMainView = lazy(() => import('./views/VoiceRoomView').then(module => ({ default: module.VoiceRoomMainView })));
++const MyPageView = lazy(() => import('./views/MyPageView').then(module => ({ default: module.MyPageView })));
++
++// Loading fallback for Suspense
++const ViewLoader = () => <div className="flex justify-center items-center h-full"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
+
+ export default function App() {
+   const [isNightTime, setIsNightTime] = useState(false);
+@@ -100,10 +105,12 @@
+         </header>
+
+         <main className="p-4 space-y-4 h-full">
+-          {activeTab === 'home' && <HomeView />}
+-          {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
+-          {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
+-          {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
++          <Suspense fallback={<ViewLoader />}>
++            {activeTab === 'home' && <HomeView />}
++            {activeTab === 'chat' && <FriendChatView isPremium={isPremium} />}
++            {activeTab === 'voice' && <VoiceRoomMainView onActiveChange={setIsVoiceRoomActive} />}
++            {activeTab === 'profile' && <MyPageView isPremium={isPremium} setIsPremium={setIsPremium} theme={theme} setTheme={setTheme} session={session} />}
++          </Suspense>
+         </main>
+       </div>
