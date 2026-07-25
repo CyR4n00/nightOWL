@@ -5,3 +5,7 @@
 ## 2024-06-25 - Prevent Premature Submission on Enter Key with IME
 **Learning:** When using Japanese IME (Input Method Editor), pressing the 'Enter' key to finalize character conversion triggers an `onKeyDown` event with `e.key === 'Enter'`. If a text input has a simple `if (e.key === 'Enter')` check to submit the form, this will cause the form to submit prematurely before the user finishes typing.
 **Action:** Always check `!e.nativeEvent.isComposing` inside `onKeyDown` event listeners for text inputs when listening for the 'Enter' key to ensure submission only occurs when the user actually intends to submit, not while composing characters.
+## 2025-02-28 - Password Visibility Toggle
+
+**Learning:** When adding interactive elements like a password visibility toggle inside an input field, it is critical to add sufficient padding (e.g. `pr-12`) to the input element so that the typed text doesn't overlap with the absolute positioned toggle icon. Also, toggle buttons must explicitly set `type="button"` to avoid triggering form submissions on Enter.
+**Action:** Always ensure absolute positioned overlay elements have corresponding padding on the underlying input, and explicitly set `type="button"` on interactive icons within forms.
