@@ -11,6 +11,18 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
   const [isEditingName, setIsEditingName] = useState(false);
   const [newUsername, setNewUsername] = useState(session?.user?.user_metadata?.username || '');
 
+  const handleSaveName = async () => {
+    if(newUsername.trim()) {
+      await supabase.auth.updateUser({ data: { username: newUsername } });
+      // Also update public.users
+      const authUser = (await supabase.auth.getSession()).data.session?.user;
+      if(authUser) {
+        await supabase.from('users').update({ username: newUsername }).eq('supabase_auth_id', authUser.id);
+      }
+    }
+    setIsEditingName(false);
+  };
+
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const url = URL.createObjectURL(e.target.files[0]);
@@ -113,8 +125,8 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
                <User className="w-10 h-10" />
              )}
           </div>
-          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
-             <Camera className="w-4 h-4" />
+          <label aria-label="プロフィール画像を変更" className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
+             <Camera className="w-4 h-4" aria-hidden="true" />
              <input type="file" accept="image/*" className="hidden" onChange={handleIconChange} />
           </label>
           {isPremium && (
@@ -131,31 +143,31 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
                 value={newUsername}
                 maxLength={20}
                 onChange={(e) => setNewUsername(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    handleSaveName();
+                  }
+                }}
                 className="bg-white/10 border border-indigo-500/50 rounded-lg px-3 py-1 text-white outline-none w-32"
                 autoFocus
               />
               <button
-                onClick={async () => {
-                  if(newUsername.trim()) {
-                    await supabase.auth.updateUser({ data: { username: newUsername } });
-                    // Also update public.users
-                    const authUser = (await supabase.auth.getSession()).data.session?.user;
-                    if(authUser) {
-                      await supabase.from('users').update({ username: newUsername }).eq('supabase_auth_id', authUser.id);
-                    }
-                  }
-                  setIsEditingName(false);
-                }}
+                onClick={handleSaveName}
                 className="text-xs bg-indigo-500 px-3 py-1.5 rounded-lg text-white"
               >
                 保存
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingName(true)}>
+            <button
+              onClick={() => setIsEditingName(true)}
+              aria-label="名前を編集"
+              className="flex items-center gap-2 group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded"
+            >
               <h2 className="font-bold text-xl">{session?.user?.user_metadata?.username || 'My Username'}</h2>
-              <Settings2 className="w-4 h-4 text-white/30 group-hover:text-white/80 transition-colors" />
-            </div>
+              <Settings2 className="w-4 h-4 text-white/30 group-hover:text-white/80 transition-colors" aria-hidden="true" />
+            </button>
           )}
           <p className="text-xs text-indigo-300 mt-1 opacity-70 truncate max-w-[200px]">{session?.user?.email}</p>
           {isPremium ? (
