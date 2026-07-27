@@ -5,3 +5,6 @@
 ## 2024-06-25 - Prevent Premature Submission on Enter Key with IME
 **Learning:** When using Japanese IME (Input Method Editor), pressing the 'Enter' key to finalize character conversion triggers an `onKeyDown` event with `e.key === 'Enter'`. If a text input has a simple `if (e.key === 'Enter')` check to submit the form, this will cause the form to submit prematurely before the user finishes typing.
 **Action:** Always check `!e.nativeEvent.isComposing` inside `onKeyDown` event listeners for text inputs when listening for the 'Enter' key to ensure submission only occurs when the user actually intends to submit, not while composing characters.
+## 2024-07-27 - Add Show/Hide Password Toggle
+**Learning:** When adding interactive elements like password visibility toggles inside input fields, the underlying input component must have adequate right padding (e.g., `pr-12`) to prevent entered text from overlapping with the interactive element.
+**Action:** Always verify text overlap and add sufficient padding when overlaying icons on inputs.
