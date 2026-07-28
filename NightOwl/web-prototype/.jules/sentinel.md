@@ -12,3 +12,8 @@
 **Vulnerability:** Raw database and backend service error objects (e.g. Supabase and Agora errors) were being logged directly to the client-side console using console.error and console.warn.
 **Learning:** Even if errors are not shown in the UI, exposing raw error objects in the browser console can leak sensitive database schema details, PostgREST internal states, or service configuration that attackers can use to craft targeted exploits.
 **Prevention:** Always sanitize error logs on the client. Use generic string messages for console outputs in production code instead of passing the raw error object.
+
+## 2026-07-28 - Fix PostgREST Injection Risk in Direct Messages
+**Vulnerability:** A PostgREST injection risk existed in `PrivateChatView.tsx` where `.or()` was used with raw string interpolation for querying 1-on-1 messages (e.g., `.or(\`and(sender_id.eq.${userId},receiver_id.eq.${friend.id})...\`)`).
+**Learning:** PostgREST injection can bypass security policies or cause unexpected query behavior if input isn't properly parameterized. Additionally, using `.in()` as an alternative mitigation for both sender and receiver causes a Cartesian product that matches self-messages.
+**Prevention:** Always use parameterized `.eq()` methods for PostgREST queries. When complex logic like OR conditions is needed across multiple columns for a chat history, execute concurrent parameterized queries via `Promise.all()` and combine/sort the results client-side to prevent Cartesian product issues while maintaining security.
