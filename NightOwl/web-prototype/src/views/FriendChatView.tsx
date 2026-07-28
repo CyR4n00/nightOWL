@@ -75,7 +75,7 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
            )}
 
            {friends.map(friend => (
-            <div key={friend.id} onClick={() => setActiveFriend(friend)} className="glass-panel p-4 flex items-center gap-4 cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm">
+            <button type="button" key={friend.id} onClick={() => setActiveFriend(friend)} className="w-full text-left glass-panel p-4 flex items-center gap-4 cursor-pointer hover:border-indigo-500/30 focus-visible:outline-none focus-visible:border-indigo-500/50 transition-all shadow-sm">
               <div className="relative">
                 <div className="w-12 h-12 rounded-full bg-indigo-900/50 border border-white/10 flex items-center justify-center">
                   <span className="text-lg font-bold text-indigo-200">{friend.name.charAt(0).toUpperCase()}</span>
@@ -86,7 +86,7 @@ export function FriendChatView({ isPremium }: { isPremium: boolean }) {
                 <h3 className="font-bold text-white/90 text-lg">{friend.name}</h3>
                 <p className="text-sm text-indigo-200/50 flex items-center gap-1 mt-0.5"><MessageSquare className="w-3 h-3" />タップしてチャットを開く</p>
               </div>
-            </div>
+            </button>
            ))}
         </div>
       </div>

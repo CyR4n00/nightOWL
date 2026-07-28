@@ -102,7 +102,7 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
         )}
 
         {rooms.map(room => (
-          <div key={room.id} onClick={() => handleJoinRoom(room.id)} className="glass-panel p-4 flex flex-col gap-3 relative overflow-hidden group hover:border-indigo-500/30 transition-colors cursor-pointer">
+          <button type="button" key={room.id} onClick={() => handleJoinRoom(room.id)} className="w-full text-left glass-panel p-4 flex flex-col gap-3 relative overflow-hidden group hover:border-indigo-500/30 focus-visible:outline-none focus-visible:border-indigo-500/50 transition-colors cursor-pointer">
             <div className="absolute top-0 left-0 w-1 h-full bg-green-400" />
             <div className="flex justify-between items-start">
               <div>
@@ -119,7 +119,7 @@ export function VoiceRoomMainView({ onActiveChange }: { onActiveChange?: (active
               <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> Open</span>
               <span className="flex items-center gap-1 ml-auto text-indigo-300">参加する</span>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
