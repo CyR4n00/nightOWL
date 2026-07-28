@@ -152,10 +152,10 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingName(true)}>
+            <button type="button" aria-label="ユーザー名を編集" className="flex items-center gap-2 group cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 rounded-lg px-2 py-1 -ml-2" onClick={() => setIsEditingName(true)}>
               <h2 className="font-bold text-xl">{session?.user?.user_metadata?.username || 'My Username'}</h2>
               <Settings2 className="w-4 h-4 text-white/30 group-hover:text-white/80 transition-colors" />
-            </div>
+            </button>
           )}
           <p className="text-xs text-indigo-300 mt-1 opacity-70 truncate max-w-[200px]">{session?.user?.email}</p>
           {isPremium ? (
