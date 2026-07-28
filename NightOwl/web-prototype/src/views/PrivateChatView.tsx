@@ -8,15 +8,34 @@ export function PrivateChatView({ friend, onClose }: { friend: { id: string, nam
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchMessages = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('direct_messages')
-      .select('*')
-      .or(`and(sender_id.eq.${userId},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${userId})`)
-      .order('created_at', { ascending: false })
-      .limit(50);
+    // 🛡️ Sentinel: Fix PostgREST Injection risk by avoiding string interpolation in .or()
+    // Use concurrent parameterized queries instead to prevent Cartesian product issues
+    const [sentQuery, receivedQuery] = await Promise.all([
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', userId)
+        .eq('receiver_id', friend.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('direct_messages')
+        .select('*')
+        .eq('sender_id', friend.id)
+        .eq('receiver_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50)
+    ]);
 
-    if (data) {
-      setMessages(data.reverse().map(msg => ({
+    const allData = [...(sentQuery.data || []), ...(receivedQuery.data || [])];
+
+    // Sort descending by created_at, take top 50, then reverse for display
+    const sortedData = allData
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 50);
+
+    if (sortedData.length > 0 || (sentQuery.data && receivedQuery.data)) {
+      setMessages(sortedData.reverse().map(msg => ({
         id: msg.id,
         isMe: msg.sender_id === userId,
         text: msg.content,
