@@ -10,6 +10,15 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 serve(async (req) => {
+  // Authentication check: Ensure only authorized schedulers can trigger this
+  const authHeader = req.headers.get('Authorization')
+  if (authHeader !== `Bearer ${supabaseServiceKey}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      headers: { "Content-Type": "application/json" },
+      status: 401
+    })
+  }
+
   try {
     // 1. Logically delete all active posts
     const { error: postsError } = await supabase
