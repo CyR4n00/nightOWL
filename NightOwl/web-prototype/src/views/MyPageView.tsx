@@ -113,9 +113,9 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
                <User className="w-10 h-10" />
              )}
           </div>
-          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
+          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10 focus-within:ring-2 focus-within:ring-white">
              <Camera className="w-4 h-4" />
-             <input type="file" accept="image/*" className="hidden" onChange={handleIconChange} />
+             <input type="file" accept="image/*" className="sr-only" onChange={handleIconChange} aria-label="アイコンを変更" />
           </label>
           {isPremium && (
             <div className="absolute -top-2 -right-2 text-2xl drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]">
@@ -152,10 +152,10 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingName(true)}>
+            <button className="flex items-center gap-2 group cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded" onClick={() => setIsEditingName(true)} aria-label="ユーザー名を編集">
               <h2 className="font-bold text-xl">{session?.user?.user_metadata?.username || 'My Username'}</h2>
               <Settings2 className="w-4 h-4 text-white/30 group-hover:text-white/80 transition-colors" />
-            </div>
+            </button>
           )}
           <p className="text-xs text-indigo-300 mt-1 opacity-70 truncate max-w-[200px]">{session?.user?.email}</p>
           {isPremium ? (
