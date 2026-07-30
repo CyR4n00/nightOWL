@@ -113,9 +113,9 @@ export function MyPageView({ isPremium, setIsPremium, theme, setTheme, session }
                <User className="w-10 h-10" />
              )}
           </div>
-          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10">
+          <label className="absolute bottom-0 right-0 p-2 bg-indigo-500 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform z-10 focus-within:ring-2 focus-within:ring-white/50 focus-within:outline-none">
              <Camera className="w-4 h-4" />
-             <input type="file" accept="image/*" className="hidden" onChange={handleIconChange} />
+             <input type="file" accept="image/*" className="sr-only" aria-label="プロフィール画像を変更" onChange={handleIconChange} />
           </label>
           {isPremium && (
             <div className="absolute -top-2 -right-2 text-2xl drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]">
