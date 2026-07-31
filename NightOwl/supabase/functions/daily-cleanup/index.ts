@@ -11,6 +11,15 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 serve(async (req) => {
   try {
+    // Validate authorization for internal scheduled execution
+    const authHeader = req.headers.get('Authorization')
+    if (authHeader !== `Bearer ${supabaseServiceKey}`) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { headers: { "Content-Type": "application/json" }, status: 401 }
+      )
+    }
+
     // 1. Logically delete all active posts
     const { error: postsError } = await supabase
       .from('posts')
