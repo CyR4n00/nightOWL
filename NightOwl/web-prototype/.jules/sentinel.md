@@ -12,3 +12,8 @@
 **Vulnerability:** Raw database and backend service error objects (e.g. Supabase and Agora errors) were being logged directly to the client-side console using console.error and console.warn.
 **Learning:** Even if errors are not shown in the UI, exposing raw error objects in the browser console can leak sensitive database schema details, PostgREST internal states, or service configuration that attackers can use to craft targeted exploits.
 **Prevention:** Always sanitize error logs on the client. Use generic string messages for console outputs in production code instead of passing the raw error object.
+
+## 2026-06-25 - [Missing Authentication on Internal Edge Functions]
+**Vulnerability:** The \`daily-cleanup\` Supabase Edge Function lacked authentication, allowing anyone who discovered the endpoint to trigger the cleanup script and logically delete all active posts, DMs, and Voice Rooms.
+**Learning:** Supabase Edge Functions intended for internal or scheduled tasks (e.g., cron jobs) do not inherently enforce authentication.
+**Prevention:** Always implement explicit authentication checks (like verifying the \`Authorization\` header against \`SUPABASE_SERVICE_ROLE_KEY\` or a custom secret) within the function logic to prevent unauthorized execution.
