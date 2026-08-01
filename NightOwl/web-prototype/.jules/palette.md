@@ -5,3 +5,6 @@
 ## 2024-06-25 - Prevent Premature Submission on Enter Key with IME
 **Learning:** When using Japanese IME (Input Method Editor), pressing the 'Enter' key to finalize character conversion triggers an `onKeyDown` event with `e.key === 'Enter'`. If a text input has a simple `if (e.key === 'Enter')` check to submit the form, this will cause the form to submit prematurely before the user finishes typing.
 **Action:** Always check `!e.nativeEvent.isComposing` inside `onKeyDown` event listeners for text inputs when listening for the 'Enter' key to ensure submission only occurs when the user actually intends to submit, not while composing characters.
+## 2024-08-01 - Avoid 'hidden' on interactive file inputs
+**Learning:** Using `display: none` (e.g. Tailwind's `hidden` class) on `<input type="file">` removes it from the accessibility tree, preventing screen readers and keyboard users from focusing and using the upload input.
+**Action:** Instead of `hidden`, use visually hidden classes (e.g. `sr-only`) on the input, and use `focus-within` styles on the parent `<label>` to display a focus ring for keyboard accessibility.
