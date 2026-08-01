@@ -4,3 +4,6 @@
 ## 2024-06-25 - Prevent O(N) re-renders on keystrokes in list components
 **Learning:** In React, coupling high-frequency text input state (like chat input) with unmemoized `.map()` list renderings causes severe UI thrashing, as the entire list of N elements is re-created on every keystroke. Wrapping child elements in `React.memo` is insufficient because the parent still re-computes the array map and performs N prop comparisons.
 **Action:** Always wrap `.map()` list generation inside a `useMemo` hook, caching the generated JSX array against the raw data array dependency, ensuring O(1) list reconciliation during input typing.
+## 2024-08-01 - Code-splitting VoiceRoomView
+**Learning:** Found that `VoiceRoomView`, which contains heavy dependencies like the Agora SDK, was statically imported in `App.tsx`. This causes the SDK to be loaded as part of the initial application bundle, even for users who only use the chat or profile features, significantly increasing initial load time and memory footprint.
+**Action:** Always use `React.lazy()` and `React.Suspense` to code-split large route components, especially those with heavy third-party SDK dependencies like WebRTC clients, to prevent blocking the initial application load and reduce main bundle size.
